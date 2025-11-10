@@ -4,7 +4,7 @@ services:
       context: ./backend
     ports:
       - "5000:5000"
-    env_file: ./backend/src/config/config.env.testing
+    env_file: ./backend/config/config.env.testing
     depends_on:
       mongo:
         condition: service_healthy
@@ -12,6 +12,7 @@ services:
       - type: bind
         source: ./backend/src
         target: /usr/app/backend/src
+      - /usr/app/backend/node_modules
 
   frontend:
     build:
@@ -24,6 +25,7 @@ services:
       - type: bind
         source: ./frontend/src
         target: /usr/app/frontend/src
+      - /usr/app/frontend/node_modules
 
   mongo:
     image: mongo

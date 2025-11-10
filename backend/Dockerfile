@@ -4,7 +4,7 @@ FROM node:${NODE_VERSION}-alpine
 
 WORKDIR /usr/app/backend
 COPY package*.json ./
-RUN npm ci --omit=dev
+RUN npm ci
 
 COPY . .
 

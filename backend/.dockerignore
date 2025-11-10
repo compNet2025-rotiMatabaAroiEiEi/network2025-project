@@ -7,6 +7,9 @@
 **/.classpath
 **/.dockerignore
 **/.env
+**/*.env
+**/*.env.*
+**/config.env*
 **/.git
 **/.gitignore
 **/.project
@@ -32,5 +35,4 @@
 **/dist
 LICENSE
 README.md
-src/config/*
-!src/config/config.env.testing
+!config/config.env.testing
