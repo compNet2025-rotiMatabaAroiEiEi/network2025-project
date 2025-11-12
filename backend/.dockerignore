@@ -35,4 +35,3 @@
 **/dist
 LICENSE
 README.md
-!config/config.env.testing

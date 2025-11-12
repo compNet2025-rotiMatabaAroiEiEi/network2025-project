@@ -2,29 +2,27 @@ services:
   backend:
     build:
       context: ./backend
+      dockerfile: Dockerfile.dev
     ports:
       - "5000:5000"
-    env_file: ./backend/config/config.env.testing
+    env_file: ./backend/config/config.env
     depends_on:
       mongo:
         condition: service_healthy
     volumes:
-      - type: bind
-        source: ./backend/src
-        target: /usr/app/backend/src
+      - ./backend:/usr/app/backend
       - /usr/app/backend/node_modules
 
   frontend:
     build:
       context: ./frontend
+      dockerfile: Dockerfile.dev
     ports:
       - "5173:5173"
     depends_on:
       - backend
     volumes:
-      - type: bind
-        source: ./frontend/src
-        target: /usr/app/frontend/src
+      - ./frontend:/usr/app/frontend
       - /usr/app/frontend/node_modules
 
   mongo:
