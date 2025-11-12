@@ -1,0 +1,100 @@
+.text-stroke {
+  -webkit-text-stroke-width: 2px; /* Stroke width */
+  -webkit-text-stroke-color: white; /* Stroke color */
+}
+
+.avatar {
+  &-select {
+    width: 150px;
+    height: 170px;
+    cursor: pointer;
+  }
+
+  &-sidebar {
+    width: 90px;
+    height: 90px;
+    border-radius: 100%;
+  }
+
+  &-chatbox {
+    width: 50px;
+    height: 50px;
+    border-radius: 100%;
+    display: inline-block;
+  }
+}
+
+.btn {
+  border-radius: 12px;
+  display: inline-block;
+  cursor: pointer;
+
+  &-main {
+    font-size: 48px;
+    background-color: var(--green-color);
+    padding: 20px 40px;
+  }
+
+  &-nav {
+    font-size: 32px;
+    background-color: var(--red-color-tier2);
+    color: var(--red-color-tier1);
+    padding: 5px 25px;
+  }
+}
+
+.icon {
+  cursor: pointer;
+  display: inline-block;
+
+  &-nav {
+    width: 50px;
+    height: 50px;
+    margin-right: 50px;
+  }
+
+  &-chatbox {
+    &-insert-voice {
+      width: 30px;
+      height: 30px;
+    }
+    &-insert-file {
+      width: 40px;
+      height: 40px;
+    }
+    &-send {
+      width: 50px;
+      height: 50px;
+    }
+  }
+}
+
+.message {
+  border-radius: 20px;
+  font-size: 20px;
+  background-color: var(--gray-color);
+  padding: 12px;
+  display: inline-block;
+  max-width: 500px;
+  margin-top: 12px;
+  position: relative;
+
+  &-left {
+    margin-left: 36px;
+    border-top-left-radius: 0;
+  }
+
+  &-right {
+    margin-right: 36px;
+    border-top-right-radius: 0;
+  }
+}
+
+.scrollbar-none {
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* IE/Edge */
+
+  &::-webkit-scrollbar {
+    display: none; /* Chrome, Safari */
+  }
+}

@@ -1,14 +1,20 @@
-import { useState } from "react";
-import reactLogo from "./assets/react.svg";
-import viteLogo from "/vite.svg";
-import "./App.css";
+import ChatLayout from "./layout/ChatLayout";
+import Chat from "./pages/Chat";
+import Login from "./pages/Login";
+import { Route, Routes } from "react-router-dom";
 
 function App() {
-  const [count, setCount] = useState(0);
-
   return (
     <>
-      <div className="font-bold text-xl">Bung Sell ROTI</div>
+      <Routes>
+        <Route path="/" element={<Login />} />
+
+        <Route path="/chat" element={<Chat />}>
+          <Route path="global" element={<ChatLayout chatType="global" />} />
+          <Route path="private" element={<ChatLayout chatType="private" />} />
+          <Route path="group" element={<ChatLayout chatType="group" />} />
+        </Route>
+      </Routes>
     </>
   );
 }
