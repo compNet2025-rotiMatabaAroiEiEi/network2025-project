@@ -2,6 +2,7 @@ import ChatLayout from "./layout/ChatLayout";
 import Chat from "./pages/Chat";
 import Login from "./pages/Login";
 import { Route, Routes } from "react-router-dom";
+import {socket} from "./test";
 
 function App() {
   return (
