@@ -1,6 +1,6 @@
 import { io } from "socket.io-client";
 
-export const socket = io("http://192.168.1.118:5000");
+export const socket = io("http://localhost:5000"); //change to http://<<ip-address>>:5000 if different device
 
 socket.on("connect", () => {
     console.log(socket.id);
