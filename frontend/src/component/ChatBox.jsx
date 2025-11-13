@@ -1,7 +1,10 @@
-import iconInsertVoice from "../asset/icon_insert_voice.png";
-import iconInsertFile from "../asset/icon_insert_file.png";
-import iconSend from "../asset/icon_send.png";
-import { useEffect, useRef } from "react";
+import IconInsertVoice from "../asset/icon_insert_voice.svg?react";
+import IconInsertFile from "../asset/icon_insert_file.svg?react";
+import IconSend from "../asset/icon_send.svg?react";
+import secretAvatar from "../asset/avatar_secret.png";
+import { useEffect, useRef, useState } from "react";
+import { motion, AnimatePresence } from "motion/react";
+import { ANIMATION, slideLeftRight } from "../style/animation";
 
 const ChatBox = ({ name }) => {
   const mockData = [
@@ -38,8 +41,8 @@ const ChatBox = ({ name }) => {
       isMe: false,
     },
     {
-      name: "look at me",
-      image: "/src/asset/avatar_snowman.png",
+      name: null,
+      image: null,
       message:
         "Hello my name in reindeer i want to eat nut and i love fish so much hope this christmas i can has hat",
       isMe: false,
@@ -52,23 +55,54 @@ const ChatBox = ({ name }) => {
       isMe: false,
     },
   ];
-
+  const [chatData, setChatData] = useState(mockData);
   const chatBoxSpaceRef = useRef(null);
 
+  const displayImage = (data, prevData) => {
+    if (data.name !== prevData) {
+      return (
+        <div className="mt-3 flex items-end gap-2">
+          <img
+            src={data.image || secretAvatar}
+            alt="avatar"
+            className="avatar avatar-chatbox"
+          />
+          {(!data.isMe && data.name) || "???"}
+        </div>
+      );
+    }
+    return;
+  };
+
   useEffect(() => {
-    chatBoxSpaceRef.current.scrollBy({
-      top: chatBoxSpaceRef.current.scrollHeight,
-    });
+    if (chatBoxSpaceRef.current) {
+      chatBoxSpaceRef.current.scrollTo({
+        top: chatBoxSpaceRef.current.scrollHeight,
+        // behavior: "smooth",
+      });
+    }
   }, []);
 
   return (
     <div className="relative flex-1 flex flex-col">
-      <h1 className="absolute top-0 left-0 m-2 text-6xl z-10">{name}</h1>
+      <AnimatePresence>
+        <motion.h1
+          key={name}
+          variants={slideLeftRight}
+          initial="slideLeft"
+          animate="slideRight"
+          exit="slideLeft"
+          custom={ANIMATION.duration}
+          className="absolute top-0 left-0 m-2 text-6xl z-10"
+        >
+          {name}
+        </motion.h1>
+      </AnimatePresence>
       <div
         ref={chatBoxSpaceRef}
         className="w-full p-2 overflow-y-auto scrollbar-none flex-1"
       >
-        {mockData.map((data, index) => {
+        {chatData.map((data, index) => {
           const prev = index > 0 ? mockData[index - 1].name : "";
           return (
             <div
@@ -77,16 +111,7 @@ const ChatBox = ({ name }) => {
                 data.isMe ? "items-end" : "items-start"
               }`}
             >
-              {data.name !== prev && (
-                <div className="mt-3 flex items-end gap-2">
-                  <img
-                    src={data.image}
-                    alt="avatar"
-                    className="avatar avatar-chatbox"
-                  />
-                  {!data.isMe && data.name}
-                </div>
-              )}
+              {displayImage(data, prev)}
               <div
                 className={`message ${
                   data.isMe ? "message-right" : "message-left"
@@ -106,22 +131,10 @@ const ChatBox = ({ name }) => {
         />
         <div className="flex justify-between items-center">
           <div className="flex gap-4 items-center">
-            <img
-              src={iconInsertVoice}
-              alt="insert-voice-icon"
-              className="icon icon-chatbox icon-chatbox-insert-voice"
-            />
-            <img
-              src={iconInsertFile}
-              alt="insert-file-icon"
-              className="icon icon-chatbox icon-chatbox-insert-file"
-            />
+            <IconInsertVoice className="icon icon-chatbox icon-chatbox-insert-voice" />
+            <IconInsertFile className="icon icon-chatbox icon-chatbox-insert-file" />
           </div>
-          <img
-            src={iconSend}
-            alt="send-message-icon"
-            className="icon icon-chatbox icon-chatbox-send"
-          />
+          <IconSend className="icon icon-chatbox icon-chatbox-send" />
         </div>
       </div>
     </div>

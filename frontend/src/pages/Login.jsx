@@ -6,19 +6,22 @@ import elfImage from "../asset/avatar_elf.png";
 import snowmanImage from "../asset/avatar_snowman.png";
 import reindeerImage from "../asset/avatar_reindeer.png";
 import gingerbreadImage from "../asset/avatar_gingerbread.png";
+import { motion } from "motion/react";
+import { ANIMATION, slideLeftRight, slideTopBottom } from "../style/animation";
 
 const Login = () => {
   const imageList = [
-    {src: santaImage, alt: "santa-avatar"},
-    {src: santaFemaleImage, alt: "santa-female-avatar"},
-    {src: elfImage, alt: "elf-avatar"},
-    {src: snowmanImage, alt: "snowman-avatar"},
-    {src: reindeerImage, alt: "reindeer-avatar"},
-    {src: gingerbreadImage, alt: "gingerbread-avatar"},
+    { src: santaImage, alt: "santa-avatar" },
+    { src: santaFemaleImage, alt: "santa-female-avatar" },
+    { src: elfImage, alt: "elf-avatar" },
+    { src: snowmanImage, alt: "snowman-avatar" },
+    { src: reindeerImage, alt: "reindeer-avatar" },
+    { src: gingerbreadImage, alt: "gingerbread-avatar" },
   ];
 
   const [name, setName] = useState("...");
   const [img, setImg] = useState(santaImage);
+  const [prevImg, setPrevImg] = useState(santaImage);
   const navigate = useNavigate();
 
   const handleSubmit = (e) => {
@@ -37,11 +40,19 @@ const Login = () => {
     <div className="grid grid-cols-2 min-h-dvh">
       <div className="bg-[url('asset/bg_login.png')] bg-cover bg-center flex flex-col justify-evenly items-center text-center">
         <h1 className="text-stroke text-7xl font-bold">Yuletde666</h1>
-        <img
-          src={img}
-          alt="profile-img"
-          className="w-[350px] h-[350px] border-3 border-white rounded-full"
-        />
+        <div className="w-[350px] h-[350px] border-3 border-white rounded-full overflow-hidden relative">
+          <motion.img
+            variants={slideTopBottom}
+            initial="slideTop"
+            animate="slideBottom"
+            custom={ANIMATION.duration}
+            key={img}
+            src={img}
+            alt="profile-img"
+            className="absolute"
+          />
+          <img src={prevImg} alt="profile-img" className="" />
+        </div>
         <div>
           <p className="text-5xl text-stroke font-bold">WELCOME</p>
           <p className="text-5xl text-stroke font-bold">{name || "\u00A0"}</p>
@@ -57,7 +68,10 @@ const Login = () => {
                 src={image.src}
                 alt={image.alt}
                 className="avatar avatar-select"
-                onClick={() => setImg(image.src)}
+                onClick={() => {
+                  setPrevImg(img);
+                  setImg(image.src);
+                }}
               />
             ))}
           </div>
@@ -74,7 +88,10 @@ const Login = () => {
               className="bg-white outline-0 px-4 py-2 rounded-xl"
               onChange={(e) => setName(e.target.value)}
             />
-            <button type="submit" className="btn btn-main mx-auto mt-3">
+            <button
+              type="submit"
+              className="btn btn-main mx-auto mt-3 active:scale-90 active:brightness-90"
+            >
               GO!
             </button>
           </form>

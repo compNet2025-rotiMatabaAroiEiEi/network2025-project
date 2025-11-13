@@ -1,8 +1,3 @@
-.text-stroke {
-  -webkit-text-stroke-width: 2px; /* Stroke width */
-  -webkit-text-stroke-color: white; /* Stroke color */
-}
-
 .avatar {
   &-select {
     width: 150px;
@@ -50,10 +45,26 @@
   &-nav {
     width: 50px;
     height: 50px;
-    margin-right: 50px;
+    margin: 0 25px;
+    fill: var(--red-color-tier2);
+
+    &-selected {
+      fill: var(--green-color);
+    }
+  }
+
+  &-sidebar {
+    &-door {
+      width: 75px;
+      height: 75px;
+      fill: var(--red-color-tier1);
+    }
   }
 
   &-chatbox {
+    fill: var(--gray-color);
+    opacity: 50%;
+
     &-insert-voice {
       width: 30px;
       height: 30px;
@@ -90,6 +101,20 @@
   }
 }
 
+.indicator-container {
+  position: absolute;
+  top: 0;
+  left: 0;
+  translate: translate(-50%, 0);
+  width: 100%;
+  height: 100%;
+  z-index: 0;
+}
+.indicator-content {
+  position: relative;
+  z-index: 10;
+}
+
 .scrollbar-none {
   scrollbar-width: none; /* Firefox */
   -ms-overflow-style: none; /* IE/Edge */
@@ -97,4 +122,9 @@
   &::-webkit-scrollbar {
     display: none; /* Chrome, Safari */
   }
+}
+
+.text-stroke {
+  -webkit-text-stroke-width: 2px; /* Stroke width */
+  -webkit-text-stroke-color: white; /* Stroke color */
 }

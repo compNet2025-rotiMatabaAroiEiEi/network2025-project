@@ -1,13 +1,15 @@
-import iconChatGlobal from "../asset/icon_chat_global.png";
-import iconChatIndiv from "../asset/icon_chat_private.png";
-import iconChatGroup from "../asset/icon_chat_group.png";
-import { useNavigate, useLocation  } from "react-router-dom";
+import IconChatGlobal from "../asset/icon_chat_global.svg?react";
+import IconChatIndiv from "../asset/icon_chat_private.svg?react";
+import IconChatGroup from "../asset/icon_chat_group.svg?react";
+import { useNavigate, useLocation } from "react-router-dom";
+import { motion } from "motion/react";
+import { ANIMATION } from "../style/animation";
 
-const NavBar = () => {
+const NavBar = ({ selected }) => {
   const iconList = [
-    { src: iconChatGlobal, alt: "global-chat-icon", path: "global" },
-    { src: iconChatIndiv, alt: "private-chat-icon", path: "private" },
-    { src: iconChatGroup, alt: "group-chat-icon", path: "group" },
+    { component: IconChatGlobal, alt: "global-chat-icon", path: "global" },
+    { component: IconChatIndiv, alt: "private-chat-icon", path: "private" },
+    { component: IconChatGroup, alt: "group-chat-icon", path: "group" },
   ];
   const location = useLocation();
   const navigate = useNavigate();
@@ -28,18 +30,29 @@ const NavBar = () => {
   return (
     <div className="w-full bg-(--green-color)">
       <div className="flex justify-between items-center">
-        <ul className="py-2.5 px-12.5">
+        <ul>
           {iconList.map((icon, index) => (
-            <li key={index} className="icon icon-nav">
-              <img
-                src={icon.src}
-                alt={icon.alt}
+            <li key={index} className="relative p-2.5 inline-block">
+              <icon.component
                 onClick={() => handleLink(icon.path)}
+                className={`icon icon-nav indicator-content ${
+                  icon.path === selected ? "icon-nav-selected" : ""
+                }`}
               />
+              {icon.path === selected && (
+                <motion.div
+                  layoutId="navbar-indicator"
+                  transition={ANIMATION}
+                  className="indicator-container bg-(--red-color-tier2)"
+                />
+              )}
             </li>
           ))}
         </ul>
-        <button onClick={() => handleExit()} className="btn btn-nav mr-5">
+        <button
+          onClick={() => handleExit()}
+          className="btn btn-nav mr-5 active:scale-90 active:brightness-90"
+        >
           BYE
         </button>
       </div>
