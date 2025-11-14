@@ -9,7 +9,7 @@ import gingerbreadImage from "../asset/avatar_gingerbread.png";
 import { motion } from "motion/react";
 import { ANIMATION, slideLeftRight, slideTopBottom } from "../style/animation";
 
-const Login = () => {
+const Login = ({socket}) => {
   const imageList = [
     { src: santaImage, alt: "santa-avatar" },
     { src: santaFemaleImage, alt: "santa-female-avatar" },
@@ -19,7 +19,7 @@ const Login = () => {
     { src: gingerbreadImage, alt: "gingerbread-avatar" },
   ];
 
-  const [name, setName] = useState("...");
+  const [name, setName] = useState("");
   const [img, setImg] = useState(santaImage);
   const [prevImg, setPrevImg] = useState(santaImage);
   const navigate = useNavigate();
@@ -29,10 +29,21 @@ const Login = () => {
     localStorage.clear();
     if (name === "") {
       alert("Please enter a name");
+    } else if (!socket) {
+      alert("Connection not ready, please wait...");
     } else {
       localStorage.setItem("name", name);
       localStorage.setItem("img", img);
-      navigate("/chat/global");
+      
+      socket.once('registerSuccess', () => {
+        navigate("/chat/global");
+      });
+      
+      socket.once('registerError', (error) => {
+        alert(error);
+      });
+      
+      socket.emit('register', { name, avatar: img });
     }
   };
 

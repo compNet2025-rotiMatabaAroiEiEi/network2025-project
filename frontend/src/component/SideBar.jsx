@@ -4,22 +4,8 @@ import IconDoor from "../asset/icon_door.svg?react";
 import { motion } from "motion/react";
 import { ANIMATION } from "../style/animation";
 
-const SideBar = ({ chatType }) => {
-  const mockData = [
-    { name: "Santa Claus", img: "/src/asset/avatar_santa.png" },
-    { name: "Mrs. Claus", img: "/src/asset/avatar_santa_female.png" },
-    { name: "Buddy the Elf", img: "/src/asset/avatar_elf.png" },
-    { name: "Frosty", img: "/src/asset/avatar_snowman.png" },
-    { name: "Rudolph", img: "/src/asset/avatar_reindeer.png" },
-    { name: "Ginger", img: "/src/asset/avatar_gingerbread.png" },
-    { name: "Sexy Santa Claus", img: "/src/asset/avatar_santa.png" },
-    { name: "Sexy Mrs. Claus", img: "/src/asset/avatar_santa_female.png" },
-    { name: "Sexy Buddy the Elf", img: "/src/asset/avatar_elf.png" },
-    { name: "Sexy Frosty", img: "/src/asset/avatar_snowman.png" },
-    { name: "Sexy Rudolph", img: "/src/asset/avatar_reindeer.png" },
-    { name: "Sexy Ginger", img: "/src/asset/avatar_gingerbread.png" },
-  ];
-  const [chatData, setChatData] = useState(mockData);
+const SideBar = ({ chatType, socket }) => {
+  const [chatData, setChatData] = useState([]);
   const sideBarContainerRef = useRef(null);
   const {
     privateChatName,
@@ -50,7 +36,7 @@ const SideBar = ({ chatType }) => {
     if (chatType === "private") {
       return (
         <img
-          src={item.img}
+          src={item.avatar || item.img}
           alt={`${item.name}-profile`}
           className="avatar avatar-sidebar indicator-content"
         />
@@ -71,6 +57,23 @@ const SideBar = ({ chatType }) => {
   useEffect(() => {
     sideBarContainerRef.current.scrollBy({ top: 0 });
   }, []);
+
+  useEffect(() => {
+    if (!socket) return;
+
+    // Request users list when component mounts
+    socket.emit('getUsers');
+
+    // Listen for users list
+    socket.on('usersList', (users) => {
+      const myUsername = localStorage.getItem('name');
+      // Filter out current user
+      const userList = users.filter(user => user.name !== myUsername);
+      setChatData(userList);
+    });
+
+    return () => socket.off('usersList');
+  }, [socket]);
 
   return (
     <div
