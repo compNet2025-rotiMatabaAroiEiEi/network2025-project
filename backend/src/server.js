@@ -19,6 +19,8 @@ io.on("connection", (socket) => {
   socket.on("privateMessage", handlers.privateMessageHandler(io, socket));
   socket.on("groupMessage", handlers.groupMessageHandler(io, socket));
   socket.on("getUsers", handlers.getUsersHandler(socket));
+  socket.on("getGroups", handlers.getGroupsHandler(socket));
+  socket.on("createGroup", handlers.createGroupHandler(io, socket));
   socket.on("getMessageHistory", handlers.getMessageHistoryHandler(socket));
   socket.on("disconnect", handlers.disconnectHandler(io, socket));
 });

@@ -1,4 +1,4 @@
-const { addMessage, getMessages } = require("./db");
+const { addMessage, getMessages, addGroup, getGroups } = require("./db");
 
 const users = {}; // { username: socket.id }
 const invertUsers = {}; // { socket.id : username }
@@ -10,23 +10,29 @@ exports.registerHandler = (io, socket) => (data) => {
   const avatar = typeof data === 'object' ? data.avatar : null;
   
   console.log("register user:", name, ", id:", socket.id);
+  
+  // Check if username is already taken (currently online)
   if (users[name]) {
-    socket.emit("registerError", "Username already taken");
-  } else {
-    users[name] = socket.id;
-    invertUsers[socket.id] = name;
-    if (avatar) {
-      userAvatars[name] = avatar;
-    }
-    socket.emit("registerSuccess", name);
-    console.log("Current users:", users);
-    // Broadcast updated user list with avatars to all clients
-    const usersList = Object.keys(users).map(username => ({
-      name: username,
-      avatar: userAvatars[username] || null
-    }));
-    io.emit("usersList", usersList);
+    socket.emit("registerError", "Username is currently in use. Please try again later or choose a different username.");
+    return;
   }
+  
+  // Add to online users
+  users[name] = socket.id;
+  invertUsers[socket.id] = name;
+  if (avatar) {
+    userAvatars[name] = avatar;
+  }
+  
+  socket.emit("registerSuccess", name);
+  console.log("Current users:", users);
+  
+  // Broadcast updated user list with avatars to all clients
+  const usersList = Object.keys(users).map(username => ({
+    name: username,
+    avatar: userAvatars[username] || null
+  }));
+  io.emit("usersList", usersList);
 };
 
 exports.broadcastHandler = (io, socket) => async (data) => {
@@ -97,6 +103,38 @@ exports.getUsersHandler = (socket) => () => {
     avatar: userAvatars[username] || null
   }));
   socket.emit("usersList", usersList);
+};
+
+// Get groups list
+exports.getGroupsHandler = (socket) => () => {
+  console.log("Send Groups list to", socket.id);
+  const groupsList = getGroups();
+  socket.emit("groupsList", groupsList);
+};
+
+// Create new group
+exports.createGroupHandler = (io, socket) => (data) => {
+  const { groupName, members } = data;
+  const creator = invertUsers[socket.id];
+  const groupId = `group_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+  
+  console.log("Create group:", groupName, "by", creator);
+  
+  const newGroup = {
+    id: groupId,
+    name: groupName,
+    members: [creator, ...members],
+    creator: creator,
+    createdAt: new Date().toISOString()
+  };
+  
+  // Save to database
+  addGroup(newGroup);
+  
+  // Broadcast updated groups list to all clients
+  const groupsList = getGroups();
+  io.emit("groupsList", groupsList);
+  socket.emit("groupCreated", { groupId, groupName });
 };
 
 // Get message history from JSON database

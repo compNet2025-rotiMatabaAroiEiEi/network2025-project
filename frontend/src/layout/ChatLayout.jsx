@@ -5,7 +5,7 @@ import { useOutletContext } from "react-router";
 import { useEffect } from "react";
 
 const ChatLayout = ({ chatType, socket }) => {
-  const { privateChatName, groupChatName, chatHistory, loadChatHistory } = useOutletContext();
+  const { privateChatName, groupChatName, groupDisplayName, chatHistory, loadChatHistory } = useOutletContext();
 
   const values = {
     private: privateChatName,
@@ -18,6 +18,16 @@ const ChatLayout = ({ chatType, socket }) => {
     if (chatType === 'private') return `private:${privateChatName}`;
     if (chatType === 'group') return `group:${groupChatName}`;
     return chatType;
+  };
+
+  // Get display name for chat
+  const getDisplayName = () => {
+    if (chatType === 'global') return 'global';
+    if (chatType === 'private') return privateChatName;
+    if (chatType === 'group' && groupChatName) {
+      return groupDisplayName || groupChatName;
+    }
+    return values[chatType];
   };
 
   const currentChatKey = getChatKey();
@@ -52,7 +62,7 @@ const ChatLayout = ({ chatType, socket }) => {
             {values[chatType] ? (
               <ChatBox 
                 key={currentChatKey}
-                name={values[chatType]} 
+                name={getDisplayName()} 
                 socket={socket} 
                 chatType={chatType} 
                 roomId={values[chatType]}
@@ -60,7 +70,7 @@ const ChatLayout = ({ chatType, socket }) => {
               />
             ) : (
               <div className="flex-1 flex items-center justify-center text-4xl text-gray-400">
-                Select user to start chatting
+                {chatType === 'private' ? 'Select user to start chatting' : 'Select or create a group to start chatting'}
               </div>
             )}
           </>

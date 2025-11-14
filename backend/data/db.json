@@ -165,6 +165,157 @@
       "avatar": "/src/asset/avatar_santa_female.png",
       "messageType": "global",
       "timestamp": "2025-11-14T14:32:03.252Z"
+    },
+    {
+      "username": "asdsaf",
+      "message": "hello",
+      "avatar": "/src/asset/avatar_snowman.png",
+      "messageType": "global",
+      "timestamp": "2025-11-14T14:39:27.250Z"
+    },
+    {
+      "username": "john",
+      "message": "test",
+      "avatar": "/src/asset/avatar_santa.png",
+      "messageType": "global",
+      "timestamp": "2025-11-14T14:43:40.340Z"
+    },
+    {
+      "username": "testerrr",
+      "message": "test",
+      "avatar": "/src/asset/avatar_reindeer.png",
+      "messageType": "global",
+      "timestamp": "2025-11-14T14:43:50.777Z"
+    },
+    {
+      "message": "hellol",
+      "avatar": "/src/asset/avatar_reindeer.png",
+      "messageType": "private",
+      "recipientId": "esfsef",
+      "timestamp": "2025-11-14T14:44:13.735Z"
+    },
+    {
+      "username": "esfsef",
+      "message": "esafd",
+      "avatar": "/src/asset/avatar_gingerbread.png",
+      "messageType": "private",
+      "recipientId": "testerrr",
+      "timestamp": "2025-11-14T14:44:19.051Z"
+    },
+    {
+      "username": "testerrr",
+      "message": "hello",
+      "avatar": "/src/asset/avatar_reindeer.png",
+      "messageType": "private",
+      "recipientId": "esfsef",
+      "timestamp": "2025-11-14T14:44:22.399Z"
+    },
+    {
+      "username": "esfsef",
+      "message": "sdwadwad",
+      "avatar": "/src/asset/avatar_gingerbread.png",
+      "messageType": "group",
+      "groupId": "group_1763131510599_b4jl4qay1",
+      "timestamp": "2025-11-14T14:45:13.506Z"
+    },
+    {
+      "username": "esfsef",
+      "message": "wadawd",
+      "avatar": "/src/asset/avatar_gingerbread.png",
+      "messageType": "group",
+      "groupId": "group_1763131510599_b4jl4qay1",
+      "timestamp": "2025-11-14T14:45:17.186Z"
+    },
+    {
+      "username": "ffff",
+      "message": "aslkdjafa;dlskf",
+      "avatar": "/src/asset/avatar_gingerbread.png",
+      "messageType": "group",
+      "groupId": "group_1763131510599_b4jl4qay1",
+      "timestamp": "2025-11-14T14:45:18.655Z"
+    },
+    {
+      "username": "dwadasd",
+      "message": "dwadwa",
+      "avatar": "/src/asset/avatar_reindeer.png",
+      "messageType": "group",
+      "groupId": "group_1763131602582_hosm6uevn",
+      "timestamp": "2025-11-14T14:46:46.596Z"
+    },
+    {
+      "username": "ffff",
+      "message": "dwao;kdfjwga",
+      "avatar": "/src/asset/avatar_gingerbread.png",
+      "messageType": "group",
+      "groupId": "group_1763131602582_hosm6uevn",
+      "timestamp": "2025-11-14T14:46:48.893Z"
+    },
+    {
+      "username": "l;kjdfsgj;klg",
+      "message": "hello",
+      "avatar": "/src/asset/avatar_santa.png",
+      "messageType": "group",
+      "groupId": "group_1763131768752_u56k1alub",
+      "timestamp": "2025-11-14T14:49:36.625Z"
+    },
+    {
+      "username": "cvxslzvknsdalkv",
+      "message": "wadawd",
+      "avatar": "/src/asset/avatar_santa.png",
+      "messageType": "group",
+      "groupId": "group_1763131768752_u56k1alub",
+      "timestamp": "2025-11-14T14:49:38.496Z"
+    },
+    {
+      "username": "l;kjdfsgj;klg",
+      "message": "test",
+      "avatar": "/src/asset/avatar_santa.png",
+      "messageType": "group",
+      "groupId": "group_1763132384264_gb46jusin",
+      "timestamp": "2025-11-14T14:59:46.936Z"
+    },
+    {
+      "message": "test",
+      "avatar": "/src/asset/avatar_reindeer.png",
+      "messageType": "global",
+      "timestamp": "2025-11-14T15:06:25.784Z"
+    },
+    {
+      "username": "mango",
+      "message": "test",
+      "avatar": "/src/asset/avatar_santa.png",
+      "messageType": "global",
+      "timestamp": "2025-11-14T15:12:20.670Z"
+    },
+    {
+      "username": "mango02",
+      "message": "test",
+      "avatar": "/src/asset/avatar_santa.png",
+      "messageType": "group",
+      "groupId": "group_1763133164648_i5f85ie1p",
+      "timestamp": "2025-11-14T15:12:46.919Z"
+    }
+  ],
+  "groups": [
+    {
+      "id": "group_1763132384264_gb46jusin",
+      "name": "test",
+      "members": [
+        "l;kjdfsgj;klg",
+        "cvxslzvknsdalkv"
+      ],
+      "creator": "l;kjdfsgj;klg",
+      "createdAt": "2025-11-14T14:59:44.264Z"
+    },
+    {
+      "id": "group_1763133164648_i5f85ie1p",
+      "name": "mango&mango",
+      "members": [
+        "mango02",
+        "mango"
+      ],
+      "creator": "mango02",
+      "createdAt": "2025-11-14T15:12:44.648Z"
     }
   ]
 }
