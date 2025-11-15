@@ -54,10 +54,17 @@
   }
 
   &-sidebar {
+    &-addgroup {
+      width: 40px;
+      height: 40px;
+      fill: var(--gray-color);
+    }
+
     &-door {
       width: 75px;
       height: 75px;
       fill: var(--red-color-tier1);
+      transition: 0.2s;
     }
   }
 
@@ -127,4 +134,29 @@
 .text-stroke {
   -webkit-text-stroke-width: 2px; /* Stroke width */
   -webkit-text-stroke-color: white; /* Stroke color */
+}
+
+.sidebar-block-container {
+  p {
+    transition: 0.2s;
+    text-align: center;
+  }
+
+  &:hover {
+    .icon-sidebar-door {
+      scale: 1.2;
+      rotate: 15deg;
+    }
+
+    p {
+      font-size: 40px;
+    }
+  }
+}
+
+input[type="text"] {
+  background-color: white;
+  outline: 0;
+  padding: 8px 16px;
+  border-radius: 12px;
 }

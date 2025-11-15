@@ -4,7 +4,7 @@ import IconSend from "../asset/icon_send.svg?react";
 import secretAvatar from "../asset/avatar_secret.png";
 import { useEffect, useRef, useState } from "react";
 import { motion, AnimatePresence } from "motion/react";
-import { ANIMATION, slideLeftRight } from "../style/animation";
+import { SPRING_ANIMATION_TRANSITION } from "../style/animation";
 
 const ChatBox = ({ name, socket, chatType, roomId, messages = [] }) => {
   const [message, setMessage] = useState("");
@@ -69,11 +69,19 @@ const ChatBox = ({ name, socket, chatType, roomId, messages = [] }) => {
       <AnimatePresence>
         <motion.h1
           key={name}
-          variants={slideLeftRight}
-          initial="slideLeft"
-          animate="slideRight"
-          exit="slideLeft"
-          custom={ANIMATION.duration}
+          initial={{
+            x: "-100%",
+            opacity: 0,
+          }}
+          animate={{
+            x: 0,
+            opacity: 1,
+          }}
+          exit={{
+            x: "-100%",
+            opacity: 0,
+          }}
+          transition={SPRING_ANIMATION_TRANSITION()}
           className="absolute top-0 left-0 m-2 text-6xl z-10"
         >
           {name}

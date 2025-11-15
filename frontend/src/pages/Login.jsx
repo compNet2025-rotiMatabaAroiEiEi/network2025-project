@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import santaImage from "../asset/avatar_santa.png";
 import santaFemaleImage from "../asset/avatar_santa_female.png";
@@ -6,8 +6,11 @@ import elfImage from "../asset/avatar_elf.png";
 import snowmanImage from "../asset/avatar_snowman.png";
 import reindeerImage from "../asset/avatar_reindeer.png";
 import gingerbreadImage from "../asset/avatar_gingerbread.png";
-import { motion } from "motion/react";
-import { ANIMATION, slideLeftRight, slideTopBottom } from "../style/animation";
+import { motion, useAnimate } from "motion/react";
+import {
+  ANIMATION_TRANSITION,
+  SPRING_ANIMATION_TRANSITION,
+} from "../style/animation";
 
 const Login = ({socket}) => {
   const imageList = [
@@ -22,41 +25,60 @@ const Login = ({socket}) => {
   const [name, setName] = useState("");
   const [img, setImg] = useState(santaImage);
   const [prevImg, setPrevImg] = useState(santaImage);
+  const [slidingBlock, animate] = useAnimate();
+
   const navigate = useNavigate();
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     localStorage.clear();
-    if (name === "") {
-      alert("Please enter a name");
-    } else if (!socket) {
-      alert("Connection not ready, please wait...");
-    } else {
-      localStorage.setItem("name", name);
-      localStorage.setItem("img", img);
-      
-      socket.once('registerSuccess', () => {
-        navigate("/chat/global");
-      });
-      
-      socket.once('registerError', (error) => {
-        alert(error);
-      });
-      
-      socket.emit('register', { name, avatar: img });
-    }
+    localStorage.setItem("name", name);
+    localStorage.setItem("img", img);
+
+    await Promise.all([
+      animate(
+        [...slidingBlock.current.children],
+        { x: "200%" },
+        ANIMATION_TRANSITION("ease-in-out")
+      ),
+      animate(
+        slidingBlock.current,
+        { scaleX: 2 },
+        SPRING_ANIMATION_TRANSITION(1.5)
+      ),
+    ]);
+
+    navigate("/chat/global");
   };
 
+  useEffect(() => {
+    const loadElement = async () => {
+      await Promise.all([
+        animate(
+          [...slidingBlock.current.children],
+          { x: "-200%" },
+          ANIMATION_TRANSITION("ease-in-out")
+        ),
+        animate(
+          slidingBlock.current,
+          { scaleX: 0.5 },
+          SPRING_ANIMATION_TRANSITION(1.5)
+        ),
+      ]);
+    };
+
+    loadElement();
+  }, []);
+
   return (
-    <div className="grid grid-cols-2 min-h-dvh">
+    <div className="grid grid-cols-2 min-h-dvh bg-(--red-color-tier3)">
       <div className="bg-[url('asset/bg_login.png')] bg-cover bg-center flex flex-col justify-evenly items-center text-center">
         <h1 className="text-stroke text-7xl font-bold">Yuletde666</h1>
         <div className="w-[350px] h-[350px] border-3 border-white rounded-full overflow-hidden relative">
           <motion.img
-            variants={slideTopBottom}
-            initial="slideTop"
-            animate="slideBottom"
-            custom={ANIMATION.duration}
+            initial={{ y: "-100%" }}
+            animate={{ y: 0 }}
+            transition={{ duration: 0.2 }}
             key={img}
             src={img}
             alt="profile-img"
@@ -69,8 +91,11 @@ const Login = ({socket}) => {
           <p className="text-5xl text-stroke font-bold">{name || "\u00A0"}</p>
         </div>
       </div>
-      <div className="w-full flex justify-center items-center bg-(--red-color-tier3) text-4xl">
-        <div className="flex flex-col items-center  gap-3">
+      <motion.div
+        ref={slidingBlock}
+        className="w-full flex justify-center items-center bg-(--red-color-tier3) text-4xl origin-right scale-x-200"
+      >
+        <div className="flex flex-col items-center gap-3 translate-x-[200%]">
           <h2>Select your Avatar</h2>
           <div className="grid grid-cols-3 grid-rows-2 gap-x-3 gap-y-2.5 mb-3">
             {imageList.map((image, index) => (
@@ -96,18 +121,20 @@ const Login = ({socket}) => {
               name="name"
               value={name}
               autoComplete="off"
-              className="bg-white outline-0 px-4 py-2 rounded-xl"
               onChange={(e) => setName(e.target.value)}
             />
-            <button
+            <motion.button
+              initial={{ scale: 0 }}
+              animate={{ scale: name.length > 0 ? 1 : 0 }}
+              transition={SPRING_ANIMATION_TRANSITION()}
               type="submit"
               className="btn btn-main mx-auto mt-3 active:scale-90 active:brightness-90"
             >
               GO!
-            </button>
+            </motion.button>
           </form>
         </div>
-      </div>
+      </motion.div>
     </div>
   );
 };

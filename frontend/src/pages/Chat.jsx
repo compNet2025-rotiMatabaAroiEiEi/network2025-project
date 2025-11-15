@@ -1,5 +1,8 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { Outlet } from "react-router-dom";
+import { motion, useAnimate } from "motion/react";
+import { useNavigate } from "react-router-dom";
+import { SPRING_ANIMATION_TRANSITION } from "../style/animation";
 
 const Chat = ({ socket }) => {
   const [privateChatName, setPrivateChatName] = useState(null);
@@ -9,6 +12,8 @@ const Chat = ({ socket }) => {
   const [groupDisplayName, setGroupDisplayName] = useState(
     sessionStorage.getItem('selectedGroupName') || null
   );
+  const [slidingBlock, animate] = useAnimate();
+  const navigate = useNavigate();
   const [chatHistory, setChatHistory] = useState({});
   const myUsername = useRef(localStorage.getItem('name'));
   const historyLoaded = useRef({});
@@ -100,10 +105,35 @@ const Chat = ({ socket }) => {
     const handleBeforeUnload = () => {
       // Keep the selection on refresh
     };
+
+    const loadElement = async () => {
+      await Promise.all([
+        animate(
+          slidingBlock.current,
+          { scaleX: 0 },
+          SPRING_ANIMATION_TRANSITION(1.5)
+        ),
+      ]);
+    };
+
+    loadElement();
     
     window.addEventListener('beforeunload', handleBeforeUnload);
     return () => window.removeEventListener('beforeunload', handleBeforeUnload);
   }, []);
+
+  const handleOut = async () => {
+    await Promise.all([
+      animate(
+        slidingBlock.current,
+        { scaleX: 1 },
+        SPRING_ANIMATION_TRANSITION(1.5)
+      ),
+    ]);
+
+    localStorage.clear();
+    navigate("/");
+  };
 
   // Function to load history for a specific chat - use useCallback to prevent recreation
   const loadChatHistory = useCallback((chatKey, messageType, recipientId, groupId) => {
@@ -123,8 +153,13 @@ const Chat = ({ socket }) => {
 
   return (
     <div className="w-full h-dvh">
+      <motion.div
+        ref={slidingBlock}
+        className="absolute top-0 left-0 h-full w-full bg-(--red-color-tier3) origin-left z-30"
+      />
       <Outlet
         context={{
+          handleOut,
           privateChatName,
           setPrivateChatName,
           groupChatName,

@@ -2,8 +2,8 @@ import { useState, useEffect, useRef } from "react";
 import { useOutletContext } from "react-router";
 import IconDoor from "../asset/icon_door.svg?react";
 import IconAddGroup from "../asset/icon_add_group.svg?react";
-import { motion } from "motion/react";
-import { ANIMATION } from "../style/animation";
+import { motion, AnimatePresence } from "motion/react";
+import { SPRING_ANIMATION_TRANSITION } from "../style/animation";
 
 const SideBar = ({ chatType, socket }) => {
   const [chatData, setChatData] = useState([]);
@@ -12,6 +12,8 @@ const SideBar = ({ chatType, socket }) => {
   const [selectedMembers, setSelectedMembers] = useState([]);
   const [allUsers, setAllUsers] = useState([]);
   const sideBarContainerRef = useRef(null);
+  const [addGroupData, setAddGroupData] = useState({ name: "" });
+  const [addGroupClicked, setAddGroupClicked] = useState(false);
   const {
     privateChatName,
     setPrivateChatName,
@@ -29,6 +31,12 @@ const SideBar = ({ chatType, socket }) => {
     group: groupChatName,
   };
 
+  const handleAddGroup = (e) => {
+    e.preventDefault();
+    setAddGroupClicked(false);
+    setAddGroupData({ name: "" });
+  };
+
   const handleChangeChat = (name) => {
     setters[chatType]?.(name);
     
@@ -40,6 +48,54 @@ const SideBar = ({ chatType, socket }) => {
         sessionStorage.setItem('selectedGroupName', group.name);
       }
     }
+  };
+
+  const displayAddGroup = () => {
+    if (chatType !== "group") return null;
+    return (
+      <div
+        onClick={() => setAddGroupClicked(true)}
+        className="bg-(--red-color-tier2) p-2 h-16 flex overflow-x-hidden"
+      >
+        <AnimatePresence mode="popLayout">
+          {addGroupClicked ? (
+            <form
+              key="form"
+              onSubmit={handleAddGroup}
+              className="w-full overflow-x-hidden"
+            >
+              <motion.input
+                initial={{ x: "-100%" }}
+                animate={{ x: 0 }}
+                exit={{ x: "100%" }}
+                name="group-name"
+                type="text"
+                value={addGroupData.name}
+                onChange={(e) => setAddGroupData({ name: e.target.value })}
+                placeholder="group name"
+                className="w-full my-auto text-xl"
+                autoFocus
+                required
+              />
+            </form>
+          ) : (
+            <div
+              key="icon"
+              className="overflow-x-hidden w-full my-auto  "
+            >
+              <motion.div
+                initial={{ x: "-100%" }}
+                animate={{ x: 0 }}
+                exit={{ x: "100%" }}
+                className="w-full  flex justify-center items-center  cursor-pointer"
+              >
+                <IconAddGroup className="icon icon-sidebar icon-sidebar-addgroup" />
+              </motion.div>
+            </div>
+          )}
+        </AnimatePresence>
+      </div>
+    );
   };
 
   const displayContainerSelected = (name) => {
@@ -170,17 +226,25 @@ const SideBar = ({ chatType, socket }) => {
       ref={sideBarContainerRef}
       className="bg-(--red-color-tier4) w-[440px] text-4xl overflow-y-auto scrollbar-none z-20 relative"
     >
-      {chatType === 'group' && (
-        <div className="sticky top-0 bg-(--red-color-tier4) p-2 border-b-2 border-(--red-color-tier3) z-30">
-          <button
-            onClick={() => setShowCreateGroup(!showCreateGroup)}
-            className="w-full flex items-center justify-center gap-2 p-2 bg-(--green-color) rounded-lg hover:brightness-110 active:scale-95"
-          >
-            <IconAddGroup className="icon icon-sidebar" />
-            <span className="text-2xl">Create Group</span>
-          </button>
+      {displayAddGroup()}
+      {chatData.map((item, index) => (
+        <div
+          key={index}
+          onClick={() => handleChangeChat(item.name)}
+          className="flex justify-between items-center p-2 cursor-pointer relative sidebar-block-container"
+        >
+          {displayContainerSelected(item.name) && (
+            <motion.div
+              layoutId="sidebar-indicator"
+              transition={SPRING_ANIMATION_TRANSITION()}
+              className="indicator-container bg-(--red-color-tier3)"
+            />
+          )}
+          {displayLeftSideElement(item)}
+          <p className="indicator-content">{item.name}</p>
+          {displayRightSideElement()}
         </div>
-      )}
+      ))}
 
       {showCreateGroup && chatType === 'group' && allUsers.length > 0 && (
         <div className="sticky top-[70px] bg-(--red-color-tier3) p-4 border-b-2 border-(--red-color-tier2) z-20">
