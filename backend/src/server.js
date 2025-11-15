@@ -42,24 +42,40 @@ app.get("/", (req, res) => {
   res.json({ message: "Server is running!", status: "ok" });
 });
 
-app.post('/upload-audio', uploadAudio.single('audioFile'), (req, res) =>{
-  if (!req.file){
-    return res.status(400).json({error: 'No audio file uploaded.'});
-  }
+app.post('/upload-audio', (req, res) => {
+  uploadAudio.single('audioFile')(req, res, (err) => {
+    if (err) {
+      console.error('Audio upload error:', err);
+      return res.status(500).json({error: 'Audio upload failed', details: err.message});
+    }
+    
+    if (!req.file){
+      return res.status(400).json({error: 'No audio file uploaded.'});
+    }
 
-  const host = req.get('host') || `${BACKEND_HOST}:${PORT}`;
-  const fileUrl = `http://${host}/uploads/audio/${req.file.filename}`;
-  res.json({url: fileUrl});
+    const host = req.get('host') || `localhost:${PORT}`;
+    const fileUrl = `http://${host}/uploads/audio/${req.file.filename}`;
+    console.log('Audio uploaded:', fileUrl);
+    res.json({url: fileUrl});
+  });
 });
 
-app.post('/upload-image', uploadImage.single('imageFile'), (req, res) =>{
-  if (!req.file){
-    return res.status(400).json({error: 'No image file uploaded.'});
-  }
+app.post('/upload-image', (req, res) => {
+  uploadImage.single('imageFile')(req, res, (err) => {
+    if (err) {
+      console.error('Image upload error:', err);
+      return res.status(500).json({error: 'Image upload failed', details: err.message});
+    }
+    
+    if (!req.file){
+      return res.status(400).json({error: 'No image file uploaded.'});
+    }
 
-  const host = req.get('host') || `${BACKEND_HOST}:${PORT}`;
-  const fileUrl = `http://${host}/uploads/images/${req.file.filename}`;
-  res.json({url: fileUrl});
+    const host = req.get('host') || `localhost:${PORT}`;
+    const fileUrl = `http://${host}/uploads/images/${req.file.filename}`;
+    console.log('Image uploaded:', fileUrl);
+    res.json({url: fileUrl});
+  });
 });
 
 const PORT = process.env.PORT;

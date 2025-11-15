@@ -240,6 +240,46 @@
       "avatar": "/src/asset/avatar_santa.png",
       "messageType": "global",
       "timestamp": "2025-11-15T19:10:57.024Z"
+    },
+    {
+      "username": "mano",
+      "contentType": "text",
+      "content": ",jhn",
+      "avatar": "/src/asset/avatar_santa.png",
+      "messageType": "global",
+      "timestamp": "2025-11-15T19:14:28.975Z"
+    },
+    {
+      "username": "mano",
+      "contentType": "text",
+      "content": "kjhhkjlkhlj",
+      "avatar": "/src/asset/avatar_santa.png",
+      "messageType": "global",
+      "timestamp": "2025-11-15T19:14:30.133Z"
+    },
+    {
+      "username": "mano",
+      "contentType": "image",
+      "content": "http://192.168.1.46:5000/uploads/images/1763234227953-doggo.jpg",
+      "avatar": "/src/asset/avatar_santa.png",
+      "messageType": "global",
+      "timestamp": "2025-11-15T19:17:07.963Z"
+    },
+    {
+      "username": "show",
+      "contentType": "image",
+      "content": "http://192.168.1.46:5000/uploads/images/1763234240279-Kitasan-Black.png",
+      "avatar": "/src/asset/avatar_snowman.png",
+      "messageType": "global",
+      "timestamp": "2025-11-15T19:17:22.435Z"
+    },
+    {
+      "username": "mano",
+      "contentType": "voice",
+      "content": "http://192.168.1.46:5000/uploads/audio/1763234250866-voice-message.webm",
+      "avatar": "/src/asset/avatar_santa.png",
+      "messageType": "global",
+      "timestamp": "2025-11-15T19:17:30.873Z"
     }
   ],
   "groups": [
