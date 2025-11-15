@@ -47,7 +47,8 @@ app.post('/upload-audio', uploadAudio.single('audioFile'), (req, res) =>{
     return res.status(400).json({error: 'No audio file uploaded.'});
   }
 
-  const fileUrl = `http://localhost:${PORT}/uploads/audio/${req.file.filename}`;
+  const host = req.get('host') || `localhost:${PORT}`;
+  const fileUrl = `http://${host}/uploads/audio/${req.file.filename}`;
   res.json({url: fileUrl});
 });
 
@@ -56,7 +57,8 @@ app.post('/upload-image', uploadImage.single('imageFile'), (req, res) =>{
     return res.status(400).json({error: 'No image file uploaded.'});
   }
 
-  const fileUrl = `http://localhost:${PORT}/uploads/images/${req.file.filename}`;
+  const host = req.get('host') || `localhost:${PORT}`;
+  const fileUrl = `http://${host}/uploads/images/${req.file.filename}`;
   res.json({url: fileUrl});
 });
 
@@ -65,6 +67,8 @@ const PORT = process.env.PORT;
 // Initialize database
 initDB();
 
-server.listen(PORT, () => {
-  console.log(`Server running on http://localhost:${PORT}`);
+server.listen(PORT, '0.0.0.0', () => {
+  console.log(`Server running on:`);
+  console.log(`  - Local:   http://localhost:${PORT}`);
+  console.log(`  - Network: http://192.168.1.46:${PORT}`);
 });
