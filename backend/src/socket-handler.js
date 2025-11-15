@@ -1,4 +1,4 @@
-const { addMessage, getMessages, addGroup, getGroups } = require("./db");
+const { addMessage, getMessages, addGroup, getGroups, addUser, getOnlineUsers, removeUser, isUsernameTaken, getMessagesByType } = require("./db");
 
 const users = {}; // { username: socket.id } - Keep for quick lookup
 const invertUsers = {}; // { socket.id : username } - Keep for quick lookup

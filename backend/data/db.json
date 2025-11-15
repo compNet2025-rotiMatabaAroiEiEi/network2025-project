@@ -95,6 +95,48 @@
       "avatar": "/src/asset/avatar_elf.png",
       "messageType": "global",
       "timestamp": "2025-11-15T18:54:45.546Z"
+    },
+    {
+      "contentType": "text",
+      "content": "da",
+      "avatar": "/src/asset/avatar_gingerbread.png",
+      "messageType": "global",
+      "timestamp": "2025-11-15T19:19:00.267Z"
+    },
+    {
+      "contentType": "text",
+      "content": "da",
+      "avatar": "/src/asset/avatar_santa.png",
+      "messageType": "global",
+      "timestamp": "2025-11-15T19:19:46.430Z"
+    },
+    {
+      "contentType": "text",
+      "content": "da",
+      "avatar": "/src/asset/avatar_reindeer.png",
+      "messageType": "global",
+      "timestamp": "2025-11-15T19:28:54.992Z"
+    },
+    {
+      "contentType": "text",
+      "content": "da",
+      "avatar": "/src/asset/avatar_reindeer.png",
+      "messageType": "global",
+      "timestamp": "2025-11-15T19:28:55.864Z"
+    },
+    {
+      "contentType": "text",
+      "content": "da",
+      "avatar": "/src/asset/avatar_reindeer.png",
+      "messageType": "global",
+      "timestamp": "2025-11-15T19:28:58.482Z"
+    },
+    {
+      "contentType": "text",
+      "content": "Ja",
+      "avatar": "/src/asset/avatar_santa_female.png",
+      "messageType": "global",
+      "timestamp": "2025-11-15T19:29:12.621Z"
     }
   ],
   "groups": [],
@@ -126,6 +168,20 @@
       "socketId": "uNgYocjzOd7vWzRsAAAB",
       "status": "online",
       "loginAt": "2025-11-15T18:54:30.389Z"
+    },
+    {
+      "username": "da",
+      "avatar": "/src/asset/avatar_santa.png",
+      "socketId": "hVwg53pxzfejc8DzAAAD",
+      "status": "online",
+      "loginAt": "2025-11-15T19:28:34.254Z"
+    },
+    {
+      "username": "Ma",
+      "avatar": "/src/asset/avatar_santa_female.png",
+      "socketId": "KVLlInIVX7fGImpFAAAB",
+      "status": "online",
+      "loginAt": "2025-11-15T19:29:13.723Z"
     }
   ]
 }

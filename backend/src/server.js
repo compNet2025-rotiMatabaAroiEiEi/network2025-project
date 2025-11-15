@@ -33,10 +33,6 @@ io.on("connection", (socket) => {
   socket.on("getGroups", handlers.getGroupsHandler(socket));
   socket.on("createGroup", handlers.createGroupHandler(io, socket));
   socket.on("getMessageHistory", handlers.getMessageHistoryHandler(socket));
-  socket.on("typing", handlers.typingHandler(io, socket));
-  socket.on("userStatus", handlers.userStatusHandler(io, socket));
-  socket.on("messageRead", handlers.messageReadHandler(io, socket));
-  socket.on("logout", handlers.logoutHandler(io, socket));
   socket.on("disconnect", handlers.disconnectHandler(io, socket));
 });
 
@@ -46,24 +42,40 @@ app.get("/", (req, res) => {
   res.json({ message: "Server is running!", status: "ok" });
 });
 
-app.post('/upload-audio', uploadAudio.single('audioFile'), (req, res) =>{
-  if (!req.file){
-    return res.status(400).json({error: 'No audio file uploaded.'});
-  }
+app.post('/upload-audio', (req, res) => {
+  uploadAudio.single('audioFile')(req, res, (err) => {
+    if (err) {
+      console.error('Audio upload error:', err);
+      return res.status(500).json({error: 'Audio upload failed', details: err.message});
+    }
+    
+    if (!req.file){
+      return res.status(400).json({error: 'No audio file uploaded.'});
+    }
 
-  const host = req.get('host') || `localhost:${PORT}`;
-  const fileUrl = `http://${host}/uploads/audio/${req.file.filename}`;
-  res.json({url: fileUrl});
+    const host = req.get('host') || `localhost:${PORT}`;
+    const fileUrl = `http://${host}/uploads/audio/${req.file.filename}`;
+    console.log('Audio uploaded:', fileUrl);
+    res.json({url: fileUrl});
+  });
 });
 
-app.post('/upload-image', uploadImage.single('imageFile'), (req, res) =>{
-  if (!req.file){
-    return res.status(400).json({error: 'No image file uploaded.'});
-  }
+app.post('/upload-image', (req, res) => {
+  uploadImage.single('imageFile')(req, res, (err) => {
+    if (err) {
+      console.error('Image upload error:', err);
+      return res.status(500).json({error: 'Image upload failed', details: err.message});
+    }
+    
+    if (!req.file){
+      return res.status(400).json({error: 'No image file uploaded.'});
+    }
 
-  const host = req.get('host') || `localhost:${PORT}`;
-  const fileUrl = `http://${host}/uploads/images/${req.file.filename}`;
-  res.json({url: fileUrl});
+    const host = req.get('host') || `localhost:${PORT}`;
+    const fileUrl = `http://${host}/uploads/images/${req.file.filename}`;
+    console.log('Image uploaded:', fileUrl);
+    res.json({url: fileUrl});
+  });
 });
 
 const PORT = process.env.PORT;
@@ -74,5 +86,5 @@ initDB();
 server.listen(PORT, '0.0.0.0', () => {
   console.log(`Server running on:`);
   console.log(`  - Local:   http://localhost:${PORT}`);
-  console.log(`  - Network: http://192.168.1.46:${PORT}`);
+  console.log(`  - Network: http://10.61.13.143:${PORT}`);
 });
