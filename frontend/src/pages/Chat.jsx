@@ -44,8 +44,9 @@ const Chat = ({ socket }) => {
           newHistory[chatKey] = [...(prev[chatKey] || []), {
             name: data.username,
             image: data.avatar,
-            content: data.content,
-            contentType: data.contentType,
+            content: data.content || data.message, // Fallback for old messages
+            contentType: data.contentType || 'text', // Default to text
+            message: data.message, // Keep for backward compatibility
             isMe: data.username === myUsername.current
           }];
           return newHistory;
@@ -58,8 +59,9 @@ const Chat = ({ socket }) => {
       const formattedMessages = messages.map(msg => ({
         name: msg.username,
         image: msg.avatar,
-        content: msg.content,
-        contentType: msg.contentType,
+        content: msg.content || msg.message, // Fallback for old messages
+        contentType: msg.contentType || 'text', // Default to text
+        message: msg.message, // Keep for backward compatibility
         isMe: msg.username === myUsername.current
       }));
       

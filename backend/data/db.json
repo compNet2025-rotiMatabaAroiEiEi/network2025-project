@@ -1,232 +1,330 @@
 {
   "messages": [
     {
-      "message": "psiajda",
+      "username": "mano",
+      "contentType": "text",
+      "content": "test",
       "avatar": "/src/asset/avatar_santa.png",
       "messageType": "global",
-      "timestamp": "2025-11-15T18:54:19.777Z"
+      "timestamp": "2025-11-15T19:01:47.103Z"
     },
     {
-      "message": "asdo[aksd",
+      "username": "show",
+      "contentType": "text",
+      "content": "hello",
+      "avatar": "/src/asset/avatar_snowman.png",
+      "messageType": "global",
+      "timestamp": "2025-11-15T19:01:52.067Z"
+    },
+    {
+      "username": "show",
+      "contentType": "text",
+      "content": "sdjasid",
+      "avatar": "/src/asset/avatar_snowman.png",
+      "messageType": "global",
+      "timestamp": "2025-11-15T19:01:53.567Z"
+    },
+    {
+      "username": "show",
+      "contentType": "text",
+      "content": "asdojkoas;'d",
+      "avatar": "/src/asset/avatar_snowman.png",
+      "messageType": "global",
+      "timestamp": "2025-11-15T19:01:54.499Z"
+    },
+    {
+      "contentType": "text",
+      "content": "asdasd",
+      "avatar": "/src/asset/avatar_snowman.png",
+      "messageType": "global",
+      "timestamp": "2025-11-15T19:01:55.277Z"
+    },
+    {
+      "contentType": "text",
+      "content": "adasd",
+      "avatar": "/src/asset/avatar_snowman.png",
+      "messageType": "global",
+      "timestamp": "2025-11-15T19:01:56.278Z"
+    },
+    {
+      "contentType": "text",
+      "content": "asdad",
+      "avatar": "/src/asset/avatar_snowman.png",
+      "messageType": "global",
+      "timestamp": "2025-11-15T19:01:57.040Z"
+    },
+    {
+      "username": "mano",
+      "contentType": "text",
+      "content": "pidjsaf",
       "avatar": "/src/asset/avatar_santa.png",
       "messageType": "global",
-      "timestamp": "2025-11-15T18:54:21.003Z"
+      "timestamp": "2025-11-15T19:01:57.728Z"
     },
     {
-      "message": "sda[koasd",
+      "username": "mano",
+      "contentType": "text",
+      "content": "l;askdjfas;ldjf",
       "avatar": "/src/asset/avatar_santa.png",
       "messageType": "global",
-      "timestamp": "2025-11-15T18:54:22.026Z"
+      "timestamp": "2025-11-15T19:01:58.617Z"
     },
     {
-      "message": "asddasd",
-      "avatar": "/src/asset/avatar_elf.png",
-      "messageType": "global",
-      "timestamp": "2025-11-15T18:54:31.330Z"
-    },
-    {
-      "message": "asd[okdasdk",
-      "avatar": "/src/asset/avatar_elf.png",
-      "messageType": "global",
-      "timestamp": "2025-11-15T18:54:33.065Z"
-    },
-    {
-      "message": "asd'laspd",
-      "avatar": "/src/asset/avatar_elf.png",
-      "messageType": "global",
-      "timestamp": "2025-11-15T18:54:33.939Z"
-    },
-    {
-      "message": "asdklasd",
-      "avatar": "/src/asset/avatar_elf.png",
-      "messageType": "global",
-      "timestamp": "2025-11-15T18:54:34.845Z"
-    },
-    {
-      "message": "ser",
-      "avatar": "/src/asset/avatar_reindeer.png",
-      "messageType": "global",
-      "timestamp": "2025-11-15T18:54:33.514Z"
-    },
-    {
-      "message": "as",
-      "avatar": "/src/asset/avatar_reindeer.png",
-      "messageType": "global",
-      "timestamp": "2025-11-15T18:54:33.704Z"
-    },
-    {
-      "message": "ef",
-      "avatar": "/src/asset/avatar_reindeer.png",
-      "messageType": "global",
-      "timestamp": "2025-11-15T18:54:33.873Z"
-    },
-    {
-      "message": "asef",
-      "avatar": "/src/asset/avatar_reindeer.png",
-      "messageType": "global",
-      "timestamp": "2025-11-15T18:54:34.053Z"
-    },
-    {
-      "message": "Hai",
-      "avatar": "/src/asset/avatar_elf.png",
-      "messageType": "global",
-      "timestamp": "2025-11-15T18:54:37.970Z"
-    },
-    {
-      "message": "Hai",
-      "avatar": "/src/asset/avatar_elf.png",
-      "messageType": "global",
-      "timestamp": "2025-11-15T18:54:39.659Z"
-    },
-    {
-      "message": "Hai",
-      "avatar": "/src/asset/avatar_elf.png",
-      "messageType": "global",
-      "timestamp": "2025-11-15T18:54:41.258Z"
-    },
-    {
-      "message": "Hai",
-      "avatar": "/src/asset/avatar_elf.png",
-      "messageType": "global",
-      "timestamp": "2025-11-15T18:54:42.722Z"
-    },
-    {
-      "message": "asdpjasidjasdaskdj",
-      "avatar": "/src/asset/avatar_elf.png",
-      "messageType": "global",
-      "timestamp": "2025-11-15T18:54:45.546Z"
-    },
-    {
+      "username": "mano",
       "contentType": "text",
-      "content": "da",
-      "avatar": "/src/asset/avatar_gingerbread.png",
-      "messageType": "global",
-      "timestamp": "2025-11-15T19:19:00.267Z"
-    },
-    {
-      "contentType": "text",
-      "content": "da",
+      "content": "asefkasejfl;asdkfa",
       "avatar": "/src/asset/avatar_santa.png",
       "messageType": "global",
-      "timestamp": "2025-11-15T19:19:46.430Z"
+      "timestamp": "2025-11-15T19:01:59.389Z"
     },
     {
       "contentType": "text",
-      "content": "da",
-      "avatar": "/src/asset/avatar_reindeer.png",
-      "messageType": "global",
-      "timestamp": "2025-11-15T19:28:54.992Z"
-    },
-    {
-      "contentType": "text",
-      "content": "da",
-      "avatar": "/src/asset/avatar_reindeer.png",
-      "messageType": "global",
-      "timestamp": "2025-11-15T19:28:55.864Z"
-    },
-    {
-      "contentType": "text",
-      "content": "da",
-      "avatar": "/src/asset/avatar_reindeer.png",
-      "messageType": "global",
-      "timestamp": "2025-11-15T19:28:58.482Z"
-    },
-    {
-      "contentType": "text",
-      "content": "Ja",
-      "avatar": "/src/asset/avatar_santa_female.png",
-      "messageType": "global",
-      "timestamp": "2025-11-15T19:29:12.621Z"
-    },
-    {
-      "contentType": "text",
-      "content": "adddd",
-      "avatar": "/src/asset/avatar_reindeer.png",
-      "messageType": "global",
-      "timestamp": "2025-11-15T19:32:10.535Z"
-    },
-    {
-      "contentType": "text",
-      "content": "da",
-      "avatar": "/src/asset/avatar_reindeer.png",
-      "messageType": "global",
-      "timestamp": "2025-11-15T19:32:11.261Z"
-    },
-    {
-      "username": "da",
-      "contentType": "text",
-      "content": "fdffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
-      "avatar": "/src/asset/avatar_reindeer.png",
-      "messageType": "global",
-      "timestamp": "2025-11-15T19:32:16.783Z"
-    },
-    {
-      "contentType": "text",
-      "content": "da",
-      "avatar": "/src/asset/avatar_gingerbread.png",
-      "messageType": "global",
-      "timestamp": "2025-11-15T19:39:44.267Z"
-    },
-    {
-      "username": "da",
-      "contentType": "text",
-      "content": "ad",
-      "avatar": "/src/asset/avatar_gingerbread.png",
-      "messageType": "global",
-      "timestamp": "2025-11-15T19:39:47.592Z"
-    },
-    {
-      "username": "da",
-      "contentType": "text",
-      "content": "dddddddd",
+      "content": "asef",
       "avatar": "/src/asset/avatar_santa.png",
       "messageType": "global",
-      "timestamp": "2025-11-15T19:40:46.220Z"
+      "timestamp": "2025-11-15T19:01:59.618Z"
+    },
+    {
+      "contentType": "text",
+      "content": "asejkfl;asd",
+      "avatar": "/src/asset/avatar_santa.png",
+      "messageType": "global",
+      "timestamp": "2025-11-15T19:01:59.960Z"
+    },
+    {
+      "contentType": "text",
+      "content": "kf",
+      "avatar": "/src/asset/avatar_santa.png",
+      "messageType": "global",
+      "timestamp": "2025-11-15T19:02:00.146Z"
+    },
+    {
+      "contentType": "text",
+      "content": "ควฟหสกา่",
+      "avatar": "/src/asset/avatar_snowman.png",
+      "messageType": "global",
+      "timestamp": "2025-11-15T19:02:02.739Z"
+    },
+    {
+      "contentType": "text",
+      "content": "sa;dkfas",
+      "avatar": "/src/asset/avatar_santa.png",
+      "messageType": "global",
+      "timestamp": "2025-11-15T19:02:00.515Z"
+    },
+    {
+      "contentType": "text",
+      "content": "df",
+      "avatar": "/src/asset/avatar_santa.png",
+      "messageType": "global",
+      "timestamp": "2025-11-15T19:02:01.210Z"
+    },
+    {
+      "contentType": "text",
+      "content": "asef",
+      "avatar": "/src/asset/avatar_santa.png",
+      "messageType": "global",
+      "timestamp": "2025-11-15T19:02:01.520Z"
+    },
+    {
+      "contentType": "text",
+      "content": "asjefkd",
+      "avatar": "/src/asset/avatar_santa.png",
+      "messageType": "global",
+      "timestamp": "2025-11-15T19:02:01.832Z"
+    },
+    {
+      "username": "show",
+      "contentType": "text",
+      "content": "ฟหก",
+      "avatar": "/src/asset/avatar_snowman.png",
+      "messageType": "global",
+      "timestamp": "2025-11-15T19:02:09.423Z"
+    },
+    {
+      "username": "show",
+      "contentType": "text",
+      "content": "ฟกหฟหก",
+      "avatar": "/src/asset/avatar_snowman.png",
+      "messageType": "global",
+      "timestamp": "2025-11-15T19:02:12.197Z"
+    },
+    {
+      "username": "mano",
+      "contentType": "text",
+      "content": "lkjj",
+      "avatar": "/src/asset/avatar_santa.png",
+      "messageType": "global",
+      "timestamp": "2025-11-15T19:02:12.154Z"
+    },
+    {
+      "username": "mano",
+      "contentType": "text",
+      "content": ";lkj;lkjk;lkj",
+      "avatar": "/src/asset/avatar_santa.png",
+      "messageType": "global",
+      "timestamp": "2025-11-15T19:02:13.675Z"
+    },
+    {
+      "username": "mano",
+      "contentType": "text",
+      "content": "mmoimkl",
+      "avatar": "/src/asset/avatar_santa.png",
+      "messageType": "global",
+      "timestamp": "2025-11-15T19:02:15.558Z"
+    },
+    {
+      "username": "mano",
+      "contentType": "text",
+      "content": "knlkjnklj;",
+      "avatar": "/src/asset/avatar_santa.png",
+      "messageType": "global",
+      "timestamp": "2025-11-15T19:02:17.455Z"
+    },
+    {
+      "username": "mano",
+      "contentType": "text",
+      "content": "test",
+      "avatar": "/src/asset/avatar_santa.png",
+      "messageType": "private",
+      "recipientId": "show",
+      "timestamp": "2025-11-15T19:02:54.720Z"
+    },
+    {
+      "username": "show",
+      "contentType": "text",
+      "content": "าีั",
+      "avatar": "/src/asset/avatar_snowman.png",
+      "messageType": "private",
+      "recipientId": "mano",
+      "timestamp": "2025-11-15T19:03:03.926Z"
+    },
+    {
+      "username": "show",
+      "contentType": "text",
+      "content": "kuy",
+      "avatar": "/src/asset/avatar_snowman.png",
+      "messageType": "private",
+      "recipientId": "mano",
+      "timestamp": "2025-11-15T19:03:05.789Z"
+    },
+    {
+      "contentType": "text",
+      "content": "a;sdj",
+      "avatar": "/src/asset/avatar_snowman.png",
+      "messageType": "private",
+      "recipientId": "mano",
+      "timestamp": "2025-11-15T19:03:06.810Z"
+    },
+    {
+      "username": "show",
+      "contentType": "text",
+      "content": "askldhj",
+      "avatar": "/src/asset/avatar_snowman.png",
+      "messageType": "group",
+      "groupId": "group_1763233394895_xw1jvksi0",
+      "timestamp": "2025-11-15T19:03:21.027Z"
+    },
+    {
+      "username": "show",
+      "contentType": "text",
+      "content": "dhaslk",
+      "avatar": "/src/asset/avatar_snowman.png",
+      "messageType": "global",
+      "timestamp": "2025-11-15T19:06:31.469Z"
+    },
+    {
+      "username": "mano",
+      "contentType": "text",
+      "content": "test",
+      "avatar": "/src/asset/avatar_santa.png",
+      "messageType": "global",
+      "timestamp": "2025-11-15T19:10:57.024Z"
+    },
+    {
+      "username": "mano",
+      "contentType": "text",
+      "content": ",jhn",
+      "avatar": "/src/asset/avatar_santa.png",
+      "messageType": "global",
+      "timestamp": "2025-11-15T19:14:28.975Z"
+    },
+    {
+      "username": "mano",
+      "contentType": "text",
+      "content": "kjhhkjlkhlj",
+      "avatar": "/src/asset/avatar_santa.png",
+      "messageType": "global",
+      "timestamp": "2025-11-15T19:14:30.133Z"
+    },
+    {
+      "username": "mano",
+      "contentType": "image",
+      "content": "http://192.168.1.46:5000/uploads/images/1763234227953-doggo.jpg",
+      "avatar": "/src/asset/avatar_santa.png",
+      "messageType": "global",
+      "timestamp": "2025-11-15T19:17:07.963Z"
+    },
+    {
+      "username": "show",
+      "contentType": "image",
+      "content": "http://192.168.1.46:5000/uploads/images/1763234240279-Kitasan-Black.png",
+      "avatar": "/src/asset/avatar_snowman.png",
+      "messageType": "global",
+      "timestamp": "2025-11-15T19:17:22.435Z"
+    },
+    {
+      "username": "mano",
+      "contentType": "voice",
+      "content": "http://192.168.1.46:5000/uploads/audio/1763234250866-voice-message.webm",
+      "avatar": "/src/asset/avatar_santa.png",
+      "messageType": "global",
+      "timestamp": "2025-11-15T19:17:30.873Z"
+    },
+    {
+      "username": "mango",
+      "contentType": "text",
+      "content": "kjhdrsegsad",
+      "avatar": "/src/asset/avatar_reindeer.png",
+      "messageType": "global",
+      "timestamp": "2025-11-15T19:25:13.512Z"
+    },
+    {
+      "username": "mango",
+      "contentType": "voice",
+      "content": "http://192.168.1.46:5000/uploads/audio/1763234725091-voice-message.webm",
+      "avatar": "/src/asset/avatar_reindeer.png",
+      "messageType": "global",
+      "timestamp": "2025-11-15T19:25:25.103Z"
+    },
+    {
+      "username": "mango",
+      "contentType": "voice",
+      "content": "http://192.168.1.46:5000/uploads/audio/1763234884841-voice-message.webm",
+      "avatar": "/src/asset/avatar_reindeer.png",
+      "messageType": "global",
+      "timestamp": "2025-11-15T19:28:04.851Z"
+    },
+    {
+      "username": "mango",
+      "contentType": "voice",
+      "content": "http://192.168.1.46:5000/uploads/audio/1763234898337-voice-message.webm",
+      "avatar": "/src/asset/avatar_reindeer.png",
+      "messageType": "global",
+      "timestamp": "2025-11-15T19:28:18.347Z"
     }
   ],
   "groups": [],
   "users": [
     {
-      "username": "mango",
-      "avatar": "/src/asset/avatar_santa.png",
-      "socketId": "ftCq1SEpgimzz4kDAAAB",
-      "status": "online",
-      "loginAt": "2025-11-15T18:47:22.473Z"
-    },
-    {
-      "username": "test",
-      "avatar": "/src/asset/avatar_gingerbread.png",
-      "socketId": "qC9Ru5Cwdx8tpQq-AAAD",
-      "status": "online",
-      "loginAt": "2025-11-15T18:47:28.681Z"
-    },
-    {
-      "username": "adasd",
-      "avatar": "/src/asset/avatar_santa.png",
-      "socketId": "bL4js_iIjO6B-wLfAAAB",
-      "status": "online",
-      "loginAt": "2025-11-15T18:54:18.702Z"
-    },
-    {
-      "username": "asd",
-      "avatar": "/src/asset/avatar_elf.png",
-      "socketId": "uNgYocjzOd7vWzRsAAAB",
-      "status": "online",
-      "loginAt": "2025-11-15T18:54:30.389Z"
-    },
-    {
-      "username": "da",
-      "avatar": "/src/asset/avatar_santa.png",
-      "socketId": "hVwg53pxzfejc8DzAAAD",
-      "status": "online",
-      "loginAt": "2025-11-15T19:28:34.254Z"
-    },
-    {
-      "username": "Ma",
-      "avatar": "/src/asset/avatar_santa_female.png",
-      "socketId": "KVLlInIVX7fGImpFAAAB",
-      "status": "online",
-      "loginAt": "2025-11-15T19:29:13.723Z"
+      "id": "group_1763233394895_xw1jvksi0",
+      "name": "เหม็น",
+      "members": [
+        "show",
+        "mano"
+      ],
+      "creator": "show",
+      "createdAt": "2025-11-15T19:03:14.895Z"
     }
   ]
 }

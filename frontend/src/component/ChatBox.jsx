@@ -12,11 +12,13 @@ const ChatBox = ({ name, socket, chatType, roomId, messages = [] }) => {
   const chatBoxSpaceRef = useRef(null);
   const typingTimeoutRef = useRef(null);
 
-  console.log('ChatBox render:', name, 'messages:', messages.length, messages);
+  const backendHost =
+    import.meta.env.VITE_BACKEND_HOST || window.location.hostname;
+  console.log("ChatBox render:", name, "messages:", messages.length, messages);
 
   const displayImage = (data, prevData) => {
     if (data.name !== prevData) {
-      console.log("sadadsa",data)
+      console.log("sadadsa", data);
       return (
         <div className="mt-3 flex items-end gap-2">
           <img
@@ -25,7 +27,7 @@ const ChatBox = ({ name, socket, chatType, roomId, messages = [] }) => {
             className="avatar avatar-chatbox"
           />
           {/* {(!data.isMe && data.name) || "???"} */}
-          {( data.name) || "???"}
+          {data.name || "???"}
         </div>
       );
     }
@@ -47,30 +49,38 @@ const ChatBox = ({ name, socket, chatType, roomId, messages = [] }) => {
 
     const handleUserTyping = (data) => {
       const { username, chatType: typingChatType, groupId, isTyping } = data;
-      
+
       // Check if typing event is for current chat
       let isRelevant = false;
-      if (chatType === 'global' && typingChatType === 'global') {
+      if (chatType === "global" && typingChatType === "global") {
         isRelevant = true;
-      } else if (chatType === 'private' && typingChatType === 'private' && username === roomId) {
+      } else if (
+        chatType === "private" &&
+        typingChatType === "private" &&
+        username === roomId
+      ) {
         isRelevant = true;
-      } else if (chatType === 'group' && typingChatType === 'group' && groupId === roomId) {
+      } else if (
+        chatType === "group" &&
+        typingChatType === "group" &&
+        groupId === roomId
+      ) {
         isRelevant = true;
       }
 
       if (isRelevant) {
         if (isTyping) {
-          setTypingUsers(prev => [...new Set([...prev, username])]);
+          setTypingUsers((prev) => [...new Set([...prev, username])]);
         } else {
-          setTypingUsers(prev => prev.filter(u => u !== username));
+          setTypingUsers((prev) => prev.filter((u) => u !== username));
         }
       }
     };
 
-    socket.on('userTyping', handleUserTyping);
+    socket.on("userTyping", handleUserTyping);
 
     return () => {
-      socket.off('userTyping', handleUserTyping);
+      socket.off("userTyping", handleUserTyping);
     };
   }, [socket, chatType, roomId]);
 
@@ -78,11 +88,11 @@ const ChatBox = ({ name, socket, chatType, roomId, messages = [] }) => {
     if (!socket) return;
 
     // Emit typing event
-    socket.emit('typing', {
+    socket.emit("typing", {
       chatType,
-      recipientId: chatType === 'private' ? roomId : null,
-      groupId: chatType === 'group' ? roomId : null,
-      isTyping: true
+      recipientId: chatType === "private" ? roomId : null,
+      groupId: chatType === "group" ? roomId : null,
+      isTyping: true,
     });
 
     // Clear previous timeout
@@ -92,33 +102,31 @@ const ChatBox = ({ name, socket, chatType, roomId, messages = [] }) => {
 
     // Set timeout to stop typing indicator
     typingTimeoutRef.current = setTimeout(() => {
-      socket.emit('typing', {
+      socket.emit("typing", {
         chatType,
-        recipientId: chatType === 'private' ? roomId : null,
-        groupId: chatType === 'group' ? roomId : null,
-        isTyping: false
+        recipientId: chatType === "private" ? roomId : null,
+        groupId: chatType === "group" ? roomId : null,
+        isTyping: false,
       });
     }, 1000);
   };
 
   const sendMessage = () => {
-    if(!message.trim() || !socket) return;
+    if (!message.trim() || !socket) return;
 
     const messageData = {
       content: message.trim(),
       contentType: "text",
       timestamp: new Date(),
-      avatar: localStorage.getItem('img')
+      avatar: localStorage.getItem("img"),
     };
 
-    if(chatType === 'global'){
-      socket.emit('broadcast', messageData);
-    }
-    else if (chatType === 'group'){
-      socket.emit('groupMessage', {...messageData, groupId: roomId})
-    } 
-    else if (chatType === 'private') {
-      socket.emit('privateMessage', {...messageData, recipientId: roomId})
+    if (chatType === "global") {
+      socket.emit("broadcast", messageData);
+    } else if (chatType === "group") {
+      socket.emit("groupMessage", { ...messageData, groupId: roomId });
+    } else if (chatType === "private") {
+      socket.emit("privateMessage", { ...messageData, recipientId: roomId });
     }
 
     setMessage("");
@@ -131,7 +139,7 @@ const ChatBox = ({ name, socket, chatType, roomId, messages = [] }) => {
   const mediaStreamRef = useRef(null);
   const audioChunksRef = useRef([]);
   const fileInputRef = useRef(null);
- 
+
   const sendMediaMessage = (contentType, content) => {
     if (!socket) return;
 
@@ -139,19 +147,17 @@ const ChatBox = ({ name, socket, chatType, roomId, messages = [] }) => {
       content: content,
       contentType: contentType,
       timestamp: new Date(),
-      avatar: localStorage.getItem('img')
+      avatar: localStorage.getItem("img"),
     };
 
-    if (chatType === 'global'){
-      socket.emit('broadcast', messageData);
+    if (chatType === "global") {
+      socket.emit("broadcast", messageData);
+    } else if (chatType === "group") {
+      socket.emit("groupMessage", { ...messageData, groupId: roomId });
+    } else if (chatType === "private") {
+      socket.emit("privateMessage", { ...messageData, recipientId: roomId });
     }
-    else if (chatType === 'group'){
-      socket.emit('groupMessage', { ...messageData, groupId: roomId });
-    }
-    else if (chatType === 'private'){
-      socket.emit('privateMessage', { ...messageData, recipientId: roomId });
-    }
-  }
+  };
 
   //voice recording
   const handleRecordClick = async () => {
@@ -164,36 +170,43 @@ const ChatBox = ({ name, socket, chatType, roomId, messages = [] }) => {
     } else {
       //start recording
       try {
-        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        const stream = await navigator.mediaDevices.getUserMedia({
+          audio: true,
+        });
         mediaStreamRef.current = stream;
         mediaRecorderRef.current = new MediaRecorder(stream);
         audioChunksRef.current = [];
 
-        mediaRecorderRef.current.addEventListener('dataavailable', event => {
+        mediaRecorderRef.current.addEventListener("dataavailable", (event) => {
           audioChunksRef.current.push(event.data);
         });
 
-        mediaRecorderRef.current.addEventListener('stop', async () => {
-          const audioBlob = new Blob(audioChunksRef.current, { type: 'audio/webm' });
-          mediaStreamRef.current.getTracks().forEach(track => track.stop());
+        mediaRecorderRef.current.addEventListener("stop", async () => {
+          const audioBlob = new Blob(audioChunksRef.current, {
+            type: "audio/webm",
+          });
+          mediaStreamRef.current.getTracks().forEach((track) => track.stop());
 
           const formData = new FormData();
-          formData.append('audioFile', audioBlob, 'voice-message.webm');
+          formData.append("audioFile", audioBlob, "voice-message.webm");
 
           setIsUploading(true);
           try {
-            const response = await fetch('http://localhost:5000/upload-audio', {
-              method: 'POST',
-              body: formData
-            })
+            const response = await fetch(
+              `http://${backendHost}:5000/upload-audio`,
+              {
+                method: "POST",
+                body: formData,
+              }
+            );
 
             if (!response.ok) {
-              throw new Error('Audio upload failed');
+              throw new Error("Audio upload failed");
             }
 
             const data = await response.json();
 
-            sendMediaMessage('voice', data.url);
+            sendMediaMessage("voice", data.url);
           } catch (err) {
             console.error("Audio upload failed:", err);
             alert("Error uploading voice message. Please try again.");
@@ -221,20 +234,20 @@ const ChatBox = ({ name, socket, chatType, roomId, messages = [] }) => {
     if (!file) return;
 
     const formData = new FormData();
-    formData.append('imageFile', file, file.name);
+    formData.append("imageFile", file, file.name);
 
     setIsUploading(true);
     try {
-      const response = await fetch('http://localhost:5000/upload-image', {
-        method: 'POST',
-        body: formData
+      const response = await fetch(`http://${backendHost}:5000/upload-image`, {
+        method: "POST",
+        body: formData,
       });
 
-      if (!response.ok) throw new Error('Image upload failed');
+      if (!response.ok) throw new Error("Image upload failed");
       const data = await response.json();
 
-      sendMediaMessage('image', data.url);
-    } catch (err){
+      sendMediaMessage("image", data.url);
+    } catch (err) {
       console.error("Image upload failed:", err);
       alert("Error uploading image. Please try again.");
     } finally {
@@ -271,37 +284,47 @@ const ChatBox = ({ name, socket, chatType, roomId, messages = [] }) => {
         ref={chatBoxSpaceRef}
         className="w-full p-2 overflow-y-auto scrollbar-none flex-1"
       >
-        {messages.length === 0 && <div className="text-center text-gray-400 mt-4">No messages yet</div>}
-        
+        {messages.length === 0 && (
+          <div className="text-center text-gray-400 mt-4">No messages yet</div>
+        )}
+
         {messages.map((data, index) => {
           if (!data) {
-            console.error('Invalid message data at index', index, data);
+            console.error("Invalid message data at index", index, data);
             return null;
           }
 
           const content = data.content || data.message;
-          const contentType = data.contentType || 'text';
+          const contentType = data.contentType || "text";
 
-          if (!content){
-            console.error('No message content found at index', index, data);
+          if (!content) {
+            console.error("No message content found at index", index, data);
             return null;
           }
 
           const prev = index > 0 ? messages[index - 1]?.name : "";
 
           const renderContent = () => {
-            switch (contentType){
-              case 'text':
+            switch (contentType) {
+              case "text":
                 return content;
-              case 'image':
-                return <img src={content} alt="User upload" className="max-w-xs rounded-lg" />;
-              case 'voice':
-                return <audio src={content} controls className="w-full max-w-xs" />;
+              case "image":
+                return (
+                  <img
+                    src={content}
+                    alt="User upload"
+                    className="max-w-xs rounded-lg"
+                  />
+                );
+              case "voice":
+                return (
+                  <audio src={content} controls className="w-full max-w-xs" />
+                );
               default:
                 return "[Unsupported message type]";
             }
           };
-          
+
           return (
             <div
               key={index}
@@ -329,7 +352,7 @@ const ChatBox = ({ name, socket, chatType, roomId, messages = [] }) => {
             handleTyping();
           }}
           onKeyDown={(e) => {
-            if(e.key === 'Enter' && !e.shiftKey){
+            if (e.key === "Enter" && !e.shiftKey) {
               e.preventDefault();
               sendMessage();
             }
@@ -339,28 +362,39 @@ const ChatBox = ({ name, socket, chatType, roomId, messages = [] }) => {
           placeholder="Type a message"
         />
         <input
-          type='file'
+          type="file"
           ref={fileInputRef}
           onChange={handleFileChange}
-          accept='image/*'
-          style={{display: 'none' }}
+          accept="image/*"
+          style={{ display: "none" }}
         />
         <div className="flex justify-between items-center">
           <div className="flex gap-4 items-center">
-            <IconInsertVoice 
-              className={`icon icon-chatbox icon-chatbox-insert-voice ${isRecording ? 'text-red-500' : ''}`}
+            <IconInsertVoice
+              className={`icon icon-chatbox icon-chatbox-insert-voice ${
+                isRecording ? "text-red-500" : ""
+              }`}
               onClick={handleRecordClick}
               disabled={isUploading}
-              style={{ cursor: isUploading ? 'not-allowed' : 'pointer', opacity: isUploading ? 0.5 : 1 }}
+              style={{
+                cursor: isUploading ? "not-allowed" : "pointer",
+                opacity: isUploading ? 0.5 : 1,
+              }}
             />
-            <IconInsertFile 
-              className="icon icon-chatbox icon-chatbox-insert-file" 
+            <IconInsertFile
+              className="icon icon-chatbox icon-chatbox-insert-file"
               onClick={handleFileClick}
               disabled={isRecording || isUploading}
-              style={{ cursor: (isRecording || isUploading) ? 'not-allowed' : 'pointer', opacity: (isRecording || isUploading) ? 0.5 : 1 }}
+              style={{
+                cursor: isRecording || isUploading ? "not-allowed" : "pointer",
+                opacity: isRecording || isUploading ? 0.5 : 1,
+              }}
             />
           </div>
-          <IconSend onClick={sendMessage} className="icon icon-chatbox icon-chatbox-send" />
+          <IconSend
+            onClick={sendMessage}
+            className="icon icon-chatbox icon-chatbox-send"
+          />
         </div>
       </div>
     </div>
