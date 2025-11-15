@@ -10,7 +10,9 @@ function App() {
   const [socket, setSocket] = useState(null);
 
   useEffect(() => {
-    const newSocket = io(`http://${window.location.hostname}:5000`);
+    // Use environment variable or fallback to current hostname
+    const backendHost = import.meta.env.VITE_BACKEND_HOST || window.location.hostname;
+    const newSocket = io(`http://${backendHost}:5000`);
     
     // Auto-register if user is already logged in
     newSocket.on('connect', () => {

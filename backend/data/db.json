@@ -1,0 +1,131 @@
+{
+  "messages": [
+    {
+      "message": "psiajda",
+      "avatar": "/src/asset/avatar_santa.png",
+      "messageType": "global",
+      "timestamp": "2025-11-15T18:54:19.777Z"
+    },
+    {
+      "message": "asdo[aksd",
+      "avatar": "/src/asset/avatar_santa.png",
+      "messageType": "global",
+      "timestamp": "2025-11-15T18:54:21.003Z"
+    },
+    {
+      "message": "sda[koasd",
+      "avatar": "/src/asset/avatar_santa.png",
+      "messageType": "global",
+      "timestamp": "2025-11-15T18:54:22.026Z"
+    },
+    {
+      "message": "asddasd",
+      "avatar": "/src/asset/avatar_elf.png",
+      "messageType": "global",
+      "timestamp": "2025-11-15T18:54:31.330Z"
+    },
+    {
+      "message": "asd[okdasdk",
+      "avatar": "/src/asset/avatar_elf.png",
+      "messageType": "global",
+      "timestamp": "2025-11-15T18:54:33.065Z"
+    },
+    {
+      "message": "asd'laspd",
+      "avatar": "/src/asset/avatar_elf.png",
+      "messageType": "global",
+      "timestamp": "2025-11-15T18:54:33.939Z"
+    },
+    {
+      "message": "asdklasd",
+      "avatar": "/src/asset/avatar_elf.png",
+      "messageType": "global",
+      "timestamp": "2025-11-15T18:54:34.845Z"
+    },
+    {
+      "message": "ser",
+      "avatar": "/src/asset/avatar_reindeer.png",
+      "messageType": "global",
+      "timestamp": "2025-11-15T18:54:33.514Z"
+    },
+    {
+      "message": "as",
+      "avatar": "/src/asset/avatar_reindeer.png",
+      "messageType": "global",
+      "timestamp": "2025-11-15T18:54:33.704Z"
+    },
+    {
+      "message": "ef",
+      "avatar": "/src/asset/avatar_reindeer.png",
+      "messageType": "global",
+      "timestamp": "2025-11-15T18:54:33.873Z"
+    },
+    {
+      "message": "asef",
+      "avatar": "/src/asset/avatar_reindeer.png",
+      "messageType": "global",
+      "timestamp": "2025-11-15T18:54:34.053Z"
+    },
+    {
+      "message": "Hai",
+      "avatar": "/src/asset/avatar_elf.png",
+      "messageType": "global",
+      "timestamp": "2025-11-15T18:54:37.970Z"
+    },
+    {
+      "message": "Hai",
+      "avatar": "/src/asset/avatar_elf.png",
+      "messageType": "global",
+      "timestamp": "2025-11-15T18:54:39.659Z"
+    },
+    {
+      "message": "Hai",
+      "avatar": "/src/asset/avatar_elf.png",
+      "messageType": "global",
+      "timestamp": "2025-11-15T18:54:41.258Z"
+    },
+    {
+      "message": "Hai",
+      "avatar": "/src/asset/avatar_elf.png",
+      "messageType": "global",
+      "timestamp": "2025-11-15T18:54:42.722Z"
+    },
+    {
+      "message": "asdpjasidjasdaskdj",
+      "avatar": "/src/asset/avatar_elf.png",
+      "messageType": "global",
+      "timestamp": "2025-11-15T18:54:45.546Z"
+    }
+  ],
+  "groups": [],
+  "users": [
+    {
+      "username": "mango",
+      "avatar": "/src/asset/avatar_santa.png",
+      "socketId": "ftCq1SEpgimzz4kDAAAB",
+      "status": "online",
+      "loginAt": "2025-11-15T18:47:22.473Z"
+    },
+    {
+      "username": "test",
+      "avatar": "/src/asset/avatar_gingerbread.png",
+      "socketId": "qC9Ru5Cwdx8tpQq-AAAD",
+      "status": "online",
+      "loginAt": "2025-11-15T18:47:28.681Z"
+    },
+    {
+      "username": "adasd",
+      "avatar": "/src/asset/avatar_santa.png",
+      "socketId": "bL4js_iIjO6B-wLfAAAB",
+      "status": "online",
+      "loginAt": "2025-11-15T18:54:18.702Z"
+    },
+    {
+      "username": "asd",
+      "avatar": "/src/asset/avatar_elf.png",
+      "socketId": "uNgYocjzOd7vWzRsAAAB",
+      "status": "online",
+      "loginAt": "2025-11-15T18:54:30.389Z"
+    }
+  ]
+}

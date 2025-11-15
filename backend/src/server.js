@@ -38,12 +38,12 @@ app.get("/", (req, res) => {
 
 const PORT = process.env.PORT;
 
-// Initialize database and start server
-initDB().then(() => {
-  server.listen(PORT, () => {
-    console.log(`Server running on http://localhost:${PORT}`);
-  });
-}).catch((error) => {
-  console.error('Failed to initialize database:', error);
-  process.exit(1);
+// Initialize database
+initDB();
+
+// Start server
+server.listen(PORT, '0.0.0.0', () => {
+  console.log(`Server running on:`);
+  console.log(`  - Local:   http://localhost:${PORT}`);
+  console.log(`  - Network: http://192.168.1.46:${PORT}`);
 });

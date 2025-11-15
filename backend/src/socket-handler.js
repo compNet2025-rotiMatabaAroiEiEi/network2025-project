@@ -13,22 +13,22 @@ const users = {}; // { username: socket.id } - Keep for quick lookup
 const invertUsers = {}; // { socket.id : username } - Keep for quick lookup
 
 // Register username
-exports.registerHandler = (io, socket) => async (data) => {
+exports.registerHandler = (io, socket) => (data) => {
   const name = typeof data === 'string' ? data : data.name;
   const avatar = typeof data === 'object' ? data.avatar : null;
   
   console.log("register user:", name, ", id:", socket.id);
   
   // Check if username is already taken (currently online)
-  const isTaken = await isUsernameTaken(name);
+  const isTaken = isUsernameTaken(name);
   if (isTaken) {
     socket.emit("registerError", "Username is currently in use. Please try again later or choose a different username.");
     return;
   }
   
   try {
-    // Save user to MongoDB
-    await addUser({
+    // Save user to database
+    addUser({
       username: name,
       avatar: avatar,
       socketId: socket.id,
@@ -50,7 +50,7 @@ exports.registerHandler = (io, socket) => async (data) => {
     });
     
     // Broadcast updated user list from database
-    const onlineUsers = await getOnlineUsers();
+    const onlineUsers = getOnlineUsers();
     const usersList = onlineUsers.map(user => ({
       name: user.username,
       avatar: user.avatar
@@ -123,10 +123,10 @@ exports.privateMessageHandler = (io, socket) => async (data) => {
   }
 };
 
-exports.getUsersHandler = (socket) => async () => {
+exports.getUsersHandler = (socket) => () => {
   console.log("Send Users list to", socket.id);
   try {
-    const onlineUsers = await getOnlineUsers();
+    const onlineUsers = getOnlineUsers();
     const usersList = onlineUsers.map(user => ({
       name: user.username,
       avatar: user.avatar
@@ -139,14 +139,14 @@ exports.getUsersHandler = (socket) => async () => {
 };
 
 // Get groups list
-exports.getGroupsHandler = (socket) => async () => {
+exports.getGroupsHandler = (socket) => () => {
   console.log("Send Groups list to", socket.id);
-  const groupsList = await getGroups();
+  const groupsList = getGroups();
   socket.emit("groupsList", groupsList);
 };
 
 // Create new group
-exports.createGroupHandler = (io, socket) => async (data) => {
+exports.createGroupHandler = (io, socket) => (data) => {
   const { groupName, members } = data;
   const creator = invertUsers[socket.id];
   const groupId = `group_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
@@ -161,22 +161,22 @@ exports.createGroupHandler = (io, socket) => async (data) => {
     createdAt: new Date().toISOString()
   };
   
-  // Save to MongoDB
-  await addGroup(newGroup);
+  // Save to database
+  addGroup(newGroup);
   
   // Broadcast updated groups list to all clients
-  const groupsList = await getGroups();
+  const groupsList = getGroups();
   io.emit("groupsList", groupsList);
   socket.emit("groupCreated", { groupId, groupName });
 };
 
-// Get message history from MongoDB
-exports.getMessageHistoryHandler = (socket) => async (data) => {
+// Get message history from database
+exports.getMessageHistoryHandler = (socket) => (data) => {
   try {
     const { messageType, recipientId, groupId } = data;
     const username = invertUsers[socket.id];
     
-    const messages = await getMessagesByType(messageType, recipientId, groupId, username);
+    const messages = getMessagesByType(messageType, recipientId, groupId, username);
     
     socket.emit("messageHistory", { chatKey: data.chatKey, messages });
   } catch (error) {
@@ -275,13 +275,13 @@ exports.messageReadHandler = (io, socket) => (data) => {
 };
 
 // Handle logout (when user clicks BYE)
-exports.logoutHandler = (io, socket) => async () => {
+exports.logoutHandler = (io, socket) => () => {
   console.log("User logout:", socket.id);
   const username = invertUsers[socket.id];
   if (username) {
     try {
-      // Remove user from MongoDB
-      await removeUser(username);
+      // Remove user from database
+      removeUser(username);
       console.log(`Logged out ${username} from database`);
       
       // Notify others that user went offline
@@ -295,7 +295,7 @@ exports.logoutHandler = (io, socket) => async () => {
       delete invertUsers[socket.id];
       
       // Broadcast updated user list from database
-      const onlineUsers = await getOnlineUsers();
+      const onlineUsers = getOnlineUsers();
       const usersList = onlineUsers.map(user => ({
         name: user.username,
         avatar: user.avatar
@@ -311,13 +311,13 @@ exports.logoutHandler = (io, socket) => async () => {
 };
 
 // Handle disconnect (when connection is lost)
-exports.disconnectHandler = (io, socket) => async () => {
+exports.disconnectHandler = (io, socket) => () => {
   console.log("Client disconnected:", socket.id);
   const username = invertUsers[socket.id];
   if (username) {
     try {
-      // Remove user from MongoDB
-      await removeUser(username);
+      // Remove user from database
+      removeUser(username);
       console.log(`Removed ${username} from database (disconnect)`);
       
       // Notify others that user went offline
@@ -331,7 +331,7 @@ exports.disconnectHandler = (io, socket) => async () => {
       delete invertUsers[socket.id];
       
       // Broadcast updated user list from database
-      const onlineUsers = await getOnlineUsers();
+      const onlineUsers = getOnlineUsers();
       const usersList = onlineUsers.map(user => ({
         name: user.username,
         avatar: user.avatar

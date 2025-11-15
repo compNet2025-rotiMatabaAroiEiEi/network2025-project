@@ -1,190 +1,170 @@
-const mongoose = require('mongoose');
-const Message = require('./models/Message');
-const Group = require('./models/Group');
-const User = require('./models/User');
+const fs = require('fs');
+const path = require('path');
 
-// Initialize database connection
-const initDB = async () => {
+const dbPath = path.join(__dirname, '../data/db.json');
+
+// Ensure data directory exists
+const ensureDataDir = () => {
+  const dataDir = path.dirname(dbPath);
+  if (!fs.existsSync(dataDir)) {
+    fs.mkdirSync(dataDir, { recursive: true });
+  }
+};
+
+// Initialize database
+const initDB = () => {
+  ensureDataDir();
+  
+  if (!fs.existsSync(dbPath)) {
+    const defaultData = { messages: [], groups: [], users: [] };
+    fs.writeFileSync(dbPath, JSON.stringify(defaultData, null, 2));
+  } else {
+    // Ensure all arrays exist in existing database
+    const db = readDB();
+    let updated = false;
+    if (!db.groups) {
+      db.groups = [];
+      updated = true;
+    }
+    if (!db.users) {
+      db.users = [];
+      updated = true;
+    }
+    if (updated) {
+      writeDB(db);
+    }
+  }
+  
+  console.log('JSON database initialized at:', dbPath);
+};
+
+// Read database
+const readDB = () => {
   try {
-    const mongoURI = process.env.MONGO_URI || 'mongodb://root:example@mongo:27017/chatapp?authSource=admin';
-    
-    await mongoose.connect(mongoURI);
-    
-    console.log('MongoDB connected successfully');
+    const data = fs.readFileSync(dbPath, 'utf8');
+    const parsed = JSON.parse(data);
+    // Ensure all arrays exist
+    if (!parsed.groups) parsed.groups = [];
+    if (!parsed.users) parsed.users = [];
+    return parsed;
   } catch (error) {
-    console.error('MongoDB connection error:', error);
-    process.exit(1);
+    console.error('Error reading database:', error);
+    return { messages: [], groups: [], users: [] };
+  }
+};
+
+// Write database
+const writeDB = (data) => {
+  try {
+    fs.writeFileSync(dbPath, JSON.stringify(data, null, 2));
+  } catch (error) {
+    console.error('Error writing database:', error);
   }
 };
 
 // Add message
-const addMessage = async (messageData) => {
-  try {
-    const message = new Message(messageData);
-    await message.save();
-    return message;
-  } catch (error) {
-    console.error('Error saving message:', error);
-    throw error;
-  }
+const addMessage = (message) => {
+  const db = readDB();
+  db.messages.push(message);
+  writeDB(db);
 };
 
 // Get messages with filter
-const getMessages = async (filter) => {
-  try {
-    let query = {};
-    
-    // Build MongoDB query from filter function
-    // This is a simplified approach - you may need to adjust based on your filter logic
-    const messages = await Message.find(query).sort({ timestamp: 1 }).limit(100);
-    
-    // Apply the filter function if provided
-    if (typeof filter === 'function') {
-      return messages.filter(filter);
-    }
-    
-    return messages;
-  } catch (error) {
-    console.error('Error fetching messages:', error);
-    return [];
-  }
+const getMessages = (filter) => {
+  const db = readDB();
+  return db.messages.filter(filter);
 };
 
-// Get messages by type and participants
-const getMessagesByType = async (messageType, recipientId = null, groupId = null, username = null) => {
-  try {
-    let query = { messageType };
-    
-    if (messageType === 'private' && recipientId && username) {
-      query = {
-        messageType: 'private',
-        $or: [
-          { username: username, recipientId: recipientId },
-          { username: recipientId, recipientId: username }
-        ]
-      };
-    } else if (messageType === 'group' && groupId) {
-      query.groupId = groupId;
+// Get messages by type
+const getMessagesByType = (messageType, recipientId = null, groupId = null, username = null) => {
+  const db = readDB();
+  
+  let messages = db.messages.filter(msg => {
+    if (messageType === 'global') {
+      return msg.messageType === 'global';
+    } else if (messageType === 'private') {
+      return msg.messageType === 'private' && (
+        (msg.username === username && msg.recipientId === recipientId) ||
+        (msg.username === recipientId && msg.recipientId === username)
+      );
+    } else if (messageType === 'group') {
+      return msg.messageType === 'group' && msg.groupId === groupId;
     }
-    
-    const messages = await Message.find(query).sort({ timestamp: 1 }).limit(100);
-    return messages;
-  } catch (error) {
-    console.error('Error fetching messages by type:', error);
-    return [];
-  }
+    return false;
+  });
+  
+  // Sort by timestamp and limit to last 100 messages
+  return messages
+    .sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp))
+    .slice(-100);
 };
 
 // Add group
-const addGroup = async (groupData) => {
-  try {
-    const group = new Group(groupData);
-    await group.save();
-    return group;
-  } catch (error) {
-    console.error('Error saving group:', error);
-    throw error;
-  }
+const addGroup = (group) => {
+  const db = readDB();
+  db.groups.push(group);
+  writeDB(db);
 };
 
 // Get all groups
-const getGroups = async () => {
-  try {
-    const groups = await Group.find().sort({ createdAt: -1 });
-    return groups;
-  } catch (error) {
-    console.error('Error fetching groups:', error);
-    return [];
-  }
+const getGroups = () => {
+  const db = readDB();
+  return db.groups || [];
 };
 
 // Update group
-const updateGroup = async (groupId, updatedData) => {
-  try {
-    const group = await Group.findOneAndUpdate(
-      { id: groupId },
-      updatedData,
-      { new: true }
-    );
-    return group;
-  } catch (error) {
-    console.error('Error updating group:', error);
-    return null;
+const updateGroup = (groupId, updatedData) => {
+  const db = readDB();
+  const groupIndex = db.groups.findIndex(g => g.id === groupId);
+  if (groupIndex !== -1) {
+    db.groups[groupIndex] = { ...db.groups[groupIndex], ...updatedData };
+    writeDB(db);
+    return db.groups[groupIndex];
   }
+  return null;
 };
 
-// Add user to database
-const addUser = async (userData) => {
-  try {
-    // Check if user already exists
-    const existingUser = await User.findOne({ username: userData.username });
-    if (existingUser) {
-      // Update existing user
-      existingUser.socketId = userData.socketId;
-      existingUser.avatar = userData.avatar;
-      existingUser.status = 'online';
-      existingUser.loginAt = new Date();
-      existingUser.lastSeen = new Date();
-      await existingUser.save();
-      return existingUser;
-    }
-    
-    // Create new user
-    const user = new User(userData);
-    await user.save();
-    return user;
-  } catch (error) {
-    console.error('Error saving user:', error);
-    throw error;
+// Add user
+const addUser = (userData) => {
+  const db = readDB();
+  // Check if user exists
+  const existingIndex = db.users.findIndex(u => u.username === userData.username);
+  if (existingIndex !== -1) {
+    // Update existing user
+    db.users[existingIndex] = {
+      ...db.users[existingIndex],
+      ...userData,
+      loginAt: new Date().toISOString()
+    };
+  } else {
+    // Add new user
+    db.users.push({
+      ...userData,
+      loginAt: new Date().toISOString(),
+      status: 'online'
+    });
   }
+  writeDB(db);
 };
 
-// Get all online users
-const getOnlineUsers = async () => {
-  try {
-    const users = await User.find({ status: 'online' }).sort({ loginAt: -1 });
-    return users;
-  } catch (error) {
-    console.error('Error fetching online users:', error);
-    return [];
-  }
+// Get online users
+const getOnlineUsers = () => {
+  const db = readDB();
+  return db.users || [];
 };
 
-// Remove user from database
-const removeUser = async (username) => {
-  try {
-    const result = await User.deleteOne({ username });
-    return result.deletedCount > 0;
-  } catch (error) {
-    console.error('Error removing user:', error);
-    return false;
-  }
-};
-
-// Update user status
-const updateUserStatus = async (username, status) => {
-  try {
-    const user = await User.findOneAndUpdate(
-      { username },
-      { status, lastSeen: new Date() },
-      { new: true }
-    );
-    return user;
-  } catch (error) {
-    console.error('Error updating user status:', error);
-    return null;
-  }
+// Remove user
+const removeUser = (username) => {
+  const db = readDB();
+  db.users = db.users.filter(u => u.username !== username);
+  writeDB(db);
+  return true;
 };
 
 // Check if username is taken
-const isUsernameTaken = async (username) => {
-  try {
-    const user = await User.findOne({ username });
-    return !!user;
-  } catch (error) {
-    console.error('Error checking username:', error);
-    return false;
-  }
+const isUsernameTaken = (username) => {
+  const db = readDB();
+  return db.users.some(u => u.username === username);
 };
 
 module.exports = { 
@@ -198,6 +178,5 @@ module.exports = {
   addUser,
   getOnlineUsers,
   removeUser,
-  updateUserStatus,
   isUsernameTaken
 };
