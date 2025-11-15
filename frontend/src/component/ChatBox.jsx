@@ -9,7 +9,7 @@ import { ANIMATION, slideLeftRight } from "../style/animation";
 const ChatBox = ({ name, socket, chatType, roomId, messages = [] }) => {
   const [message, setMessage] = useState("");
   const chatBoxSpaceRef = useRef(null);
-
+  const backendHost = import.meta.env.VITE_BACKEND_HOST || window.location.hostname;
   console.log('ChatBox render:', name, 'messages:', messages.length, messages);
 
   const displayImage = (data, prevData) => {
@@ -120,7 +120,7 @@ const ChatBox = ({ name, socket, chatType, roomId, messages = [] }) => {
 
           setIsUploading(true);
           try {
-            const response = await fetch('http://localhost:5000/upload-audio', {
+            const response = await fetch(`http://${backendHost}:5000/upload-audio`, {
               method: 'POST',
               body: formData
             })
@@ -163,7 +163,7 @@ const ChatBox = ({ name, socket, chatType, roomId, messages = [] }) => {
 
     setIsUploading(true);
     try {
-      const response = await fetch('http://localhost:5000/upload-image', {
+      const response = await fetch(`http://${backendHost}:5000/upload-image`, {
         method: 'POST',
         body: formData
       });

@@ -47,7 +47,7 @@ app.post('/upload-audio', uploadAudio.single('audioFile'), (req, res) =>{
     return res.status(400).json({error: 'No audio file uploaded.'});
   }
 
-  const host = req.get('host') || `localhost:${PORT}`;
+  const host = req.get('host') || `${BACKEND_HOST}:${PORT}`;
   const fileUrl = `http://${host}/uploads/audio/${req.file.filename}`;
   res.json({url: fileUrl});
 });
@@ -57,7 +57,7 @@ app.post('/upload-image', uploadImage.single('imageFile'), (req, res) =>{
     return res.status(400).json({error: 'No image file uploaded.'});
   }
 
-  const host = req.get('host') || `localhost:${PORT}`;
+  const host = req.get('host') || `${BACKEND_HOST}:${PORT}`;
   const fileUrl = `http://${host}/uploads/images/${req.file.filename}`;
   res.json({url: fileUrl});
 });

@@ -180,7 +180,78 @@
       "avatar": "/src/asset/avatar_santa.png",
       "messageType": "global",
       "timestamp": "2025-11-15T19:02:17.455Z"
+    },
+    {
+      "username": "mano",
+      "contentType": "text",
+      "content": "test",
+      "avatar": "/src/asset/avatar_santa.png",
+      "messageType": "private",
+      "recipientId": "show",
+      "timestamp": "2025-11-15T19:02:54.720Z"
+    },
+    {
+      "username": "show",
+      "contentType": "text",
+      "content": "าีั",
+      "avatar": "/src/asset/avatar_snowman.png",
+      "messageType": "private",
+      "recipientId": "mano",
+      "timestamp": "2025-11-15T19:03:03.926Z"
+    },
+    {
+      "username": "show",
+      "contentType": "text",
+      "content": "kuy",
+      "avatar": "/src/asset/avatar_snowman.png",
+      "messageType": "private",
+      "recipientId": "mano",
+      "timestamp": "2025-11-15T19:03:05.789Z"
+    },
+    {
+      "contentType": "text",
+      "content": "a;sdj",
+      "avatar": "/src/asset/avatar_snowman.png",
+      "messageType": "private",
+      "recipientId": "mano",
+      "timestamp": "2025-11-15T19:03:06.810Z"
+    },
+    {
+      "username": "show",
+      "contentType": "text",
+      "content": "askldhj",
+      "avatar": "/src/asset/avatar_snowman.png",
+      "messageType": "group",
+      "groupId": "group_1763233394895_xw1jvksi0",
+      "timestamp": "2025-11-15T19:03:21.027Z"
+    },
+    {
+      "username": "show",
+      "contentType": "text",
+      "content": "dhaslk",
+      "avatar": "/src/asset/avatar_snowman.png",
+      "messageType": "global",
+      "timestamp": "2025-11-15T19:06:31.469Z"
+    },
+    {
+      "username": "mano",
+      "contentType": "text",
+      "content": "test",
+      "avatar": "/src/asset/avatar_santa.png",
+      "messageType": "global",
+      "timestamp": "2025-11-15T19:10:57.024Z"
     }
   ],
-  "groups": []
+  "groups": [
+    {
+      "id": "group_1763233394895_xw1jvksi0",
+      "name": "เหม็น",
+      "members": [
+        "show",
+        "mano"
+      ],
+      "creator": "show",
+      "createdAt": "2025-11-15T19:03:14.895Z"
+    }
+  ]
 }
