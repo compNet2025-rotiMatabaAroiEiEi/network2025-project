@@ -1,59 +1,43 @@
-const { addMessage, getMessages, addGroup, getGroups, addUser, getOnlineUsers, removeUser, isUsernameTaken, getMessagesByType } = require("./db");
+const { 
+  addMessage,
+  getMessages,  
+  addGroup, 
+  getGroups 
+} = require("./db");
 
-const users = {}; // { username: socket.id } - Keep for quick lookup
-const invertUsers = {}; // { socket.id : username } - Keep for quick lookup
+const users = {}; // { username: socket.id }
+const invertUsers = {}; // { socket.id : username }
+const userAvatars = {}; // { username: avatar }
 
 // Register username
 exports.registerHandler = (io, socket) => (data) => {
-  const name = typeof data === "string" ? data : data.name;
-  const avatar = typeof data === "object" ? data.avatar : null;
-
+  const name = typeof data === 'string' ? data : data.name;
+  const avatar = typeof data === 'object' ? data.avatar : null;
+  
   console.log("register user:", name, ", id:", socket.id);
-
+  
   // Check if username is already taken (currently online)
-  const isTaken = isUsernameTaken(name);
-  if (isTaken) {
-    socket.emit(
-      "registerError",
-      "Username is currently in use. Please try again later or choose a different username."
-    );
+  if (users[name]) {
+    socket.emit("registerError", "Username is currently in use. Please try again later or choose a different username.");
     return;
   }
-
-  try {
-    // Save user to database
-    addUser({
-      username: name,
-      avatar: avatar,
-      socketId: socket.id,
-      status: "online",
-    });
-
-    // Add to in-memory cache for quick lookup
-    users[name] = socket.id;
-    invertUsers[socket.id] = name;
-
-    socket.emit("registerSuccess", name);
-    console.log("User saved to database:", name);
-
-    // Notify all users that someone came online
-    io.emit("userOnline", {
-      username: name,
-      avatar: avatar,
-      timestamp: new Date().toISOString(),
-    });
-
-    // Broadcast updated user list from database
-    const onlineUsers = getOnlineUsers();
-    const usersList = onlineUsers.map((user) => ({
-      name: user.username,
-      avatar: user.avatar,
-    }));
-    io.emit("usersList", usersList);
-  } catch (error) {
-    console.error("Error registering user:", error);
-    socket.emit("registerError", "Failed to register. Please try again.");
+  
+  // Add to online users
+  users[name] = socket.id;
+  invertUsers[socket.id] = name;
+  if (avatar) {
+    userAvatars[name] = avatar;
   }
+  
+  socket.emit("registerSuccess", name);
+  console.log("Current users:", users);
+  
+  // Broadcast updated user list with avatars to all clients
+  const usersList = Object.keys(users).map(username => ({
+    name: username,
+    avatar: userAvatars[username] || null
+  }));
+  io.emit("usersList", usersList);
 };
 
 exports.broadcastHandler = (io, socket) => async (data) => {
@@ -64,25 +48,25 @@ exports.broadcastHandler = (io, socket) => async (data) => {
     timestamp: data.timestamp || new Date().toISOString(),
     userId: socket.id,
     avatar: data.avatar,
-    messageType: "global",
+    messageType: 'global',
     contentType: data.contentType,
-    content: data.content,
+    content: data.content
   };
-
-  // Save to MongoDB
+  
+  // Save to JSON database
   try {
-    await addMessage({
+    addMessage({
       username: messageData.username,
       contentType: messageData.contentType,
       content: messageData.content,
       avatar: messageData.avatar,
-      messageType: "global",
-      timestamp: messageData.timestamp,
+      messageType: 'global',
+      timestamp: messageData.timestamp
     });
   } catch (error) {
     console.error("Error saving message:", error);
   }
-
+  
   io.emit("message", messageData);
 };
 
@@ -97,45 +81,39 @@ exports.privateMessageHandler = (io, socket) => async (data) => {
       timestamp: data.timestamp || new Date().toISOString(),
       userId: socket.id,
       avatar: data.avatar,
-      messageType: "private",
+      messageType: 'private',
       recipientId: data.recipientId,
       contentType: data.contentType,
-      content: data.content,
+      content: data.content
     };
-
-    // Save to MongoDB
+    
+    // Save to JSON database
     try {
-      await addMessage({
+      addMessage({
         username: messageData.username,
         contentType: messageData.contentType,
         content: messageData.content,
         avatar: messageData.avatar,
-        messageType: "private",
+        messageType: 'private',
         recipientId: messageData.recipientId,
-        timestamp: messageData.timestamp,
+        timestamp: messageData.timestamp
       });
     } catch (error) {
       console.error("Error saving message:", error);
     }
-
+    
     io.to(toId).emit("message", messageData);
     socket.emit("message", messageData);
   }
 };
 
 exports.getUsersHandler = (socket) => () => {
-  console.log("Send Users list to", socket.id);
-  try {
-    const onlineUsers = getOnlineUsers();
-    const usersList = onlineUsers.map((user) => ({
-      name: user.username,
-      avatar: user.avatar,
-    }));
-    socket.emit("usersList", usersList);
-  } catch (error) {
-    console.error("Error getting users:", error);
-    socket.emit("usersList", []);
-  }
+  console.log("Send Users list:", Object.keys(users), "to", socket.id);
+  const usersList = Object.keys(users).map(username => ({
+    name: username,
+    avatar: userAvatars[username] || null
+  }));
+  socket.emit("usersList", usersList);
 };
 
 // Get groups list
@@ -149,42 +127,53 @@ exports.getGroupsHandler = (socket) => () => {
 exports.createGroupHandler = (io, socket) => (data) => {
   const { groupName, members } = data;
   const creator = invertUsers[socket.id];
-  const groupId = `group_${Date.now()}_${Math.random()
-    .toString(36)
-    .substr(2, 9)}`;
-
+  const groupId = `group_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+  
   console.log("Create group:", groupName, "by", creator);
-
+  
   const newGroup = {
     id: groupId,
     name: groupName,
     members: [creator, ...members],
     creator: creator,
-    createdAt: new Date().toISOString(),
+    createdAt: new Date().toISOString()
   };
-
+  
   // Save to database
   addGroup(newGroup);
-
+  
   // Broadcast updated groups list to all clients
   const groupsList = getGroups();
   io.emit("groupsList", groupsList);
   socket.emit("groupCreated", { groupId, groupName });
 };
 
-// Get message history from database
+// Get message history from JSON database
 exports.getMessageHistoryHandler = (socket) => (data) => {
   try {
     const { messageType, recipientId, groupId } = data;
     const username = invertUsers[socket.id];
-
-    const messages = getMessagesByType(
-      messageType,
-      recipientId,
-      groupId,
-      username
-    );
-
+    
+    let messages = getMessages(msg => {
+      if (messageType === 'global') {
+        return msg.messageType === 'global';
+      } else if (messageType === 'private') {
+        // Get messages between current user and recipient
+        return msg.messageType === 'private' && (
+          (msg.username === username && msg.recipientId === recipientId) ||
+          (msg.username === recipientId && msg.recipientId === username)
+        );
+      } else if (messageType === 'group') {
+        return msg.messageType === 'group' && msg.groupId === groupId;
+      }
+      return false;
+    });
+    
+    // Sort by timestamp and limit to last 100 messages
+    messages = messages
+      .sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp))
+      .slice(-100);
+    
     socket.emit("messageHistory", { chatKey: data.chatKey, messages });
   } catch (error) {
     console.error("Error fetching message history:", error);
@@ -201,155 +190,45 @@ exports.groupMessageHandler = (io, socket) => async (data) => {
     userId: socket.id,
     groupId: data.groupId,
     avatar: data.avatar,
-    messageType: "group",
+    messageType: 'group',
     contentType: data.contentType,
     content: data.content,
   };
-
-  // Save to MongoDB
+  
+  // Save to JSON database
   try {
-    await addMessage({
+    addMessage({
       username: messageData.username,
       // message: messageData.message,
       contentType: messageData.contentType,
       content: messageData.content,
       avatar: messageData.avatar,
-      messageType: "group",
+      messageType: 'group',
       groupId: messageData.groupId,
-      timestamp: messageData.timestamp,
+      timestamp: messageData.timestamp
     });
   } catch (error) {
     console.error("Error saving message:", error);
   }
-
+  
   // Emit to all users in the group (for now, broadcast to all)
   io.emit("message", messageData);
 };
 
-// Typing indicator handler
-exports.typingHandler = (io, socket) => (data) => {
-  const username = invertUsers[socket.id];
-  const { chatType, recipientId, groupId, isTyping } = data;
-
-  if (chatType === "private" && recipientId) {
-    const toId = users[recipientId];
-    if (toId) {
-      io.to(toId).emit("userTyping", {
-        username,
-        chatType,
-        isTyping,
-      });
-    }
-  } else if (chatType === "group" && groupId) {
-    io.emit("userTyping", {
-      username,
-      chatType,
-      groupId,
-      isTyping,
-    });
-  } else if (chatType === "global") {
-    socket.broadcast.emit("userTyping", {
-      username,
-      chatType,
-      isTyping,
-    });
-  }
-};
-
-// User online status handler
-exports.userStatusHandler = (io, socket) => (data) => {
-  const username = invertUsers[socket.id];
-  const { status } = data; // 'online', 'away', 'busy'
-
-  io.emit("userStatus", {
-    username,
-    status,
-    timestamp: new Date().toISOString(),
-  });
-};
-
-// Message read receipt handler
-exports.messageReadHandler = (io, socket) => (data) => {
-  const username = invertUsers[socket.id];
-  const { messageId, chatType, recipientId } = data;
-
-  if (chatType === "private" && recipientId) {
-    const toId = users[recipientId];
-    if (toId) {
-      io.to(toId).emit("messageRead", {
-        messageId,
-        readBy: username,
-        timestamp: new Date().toISOString(),
-      });
-    }
-  }
-};
-
-// Handle logout (when user clicks BYE)
-exports.logoutHandler = (io, socket) => () => {
-  console.log("User logout:", socket.id);
-  const username = invertUsers[socket.id];
-  if (username) {
-    try {
-      // Remove user from database
-      removeUser(username);
-      console.log(`Logged out ${username} from database`);
-
-      // Notify others that user went offline
-      io.emit("userOffline", {
-        username,
-        timestamp: new Date().toISOString(),
-      });
-
-      // Remove from in-memory cache
-      delete users[username];
-      delete invertUsers[socket.id];
-
-      // Broadcast updated user list from database
-      const onlineUsers = getOnlineUsers();
-      const usersList = onlineUsers.map((user) => ({
-        name: user.username,
-        avatar: user.avatar,
-      }));
-      io.emit("usersList", usersList);
-
-      // Confirm logout to client
-      socket.emit("logoutSuccess");
-    } catch (error) {
-      console.error("Error handling logout:", error);
-    }
-  }
-};
-
-// Handle disconnect (when connection is lost)
+// Handle disconnect
 exports.disconnectHandler = (io, socket) => () => {
   console.log("Client disconnected:", socket.id);
   const username = invertUsers[socket.id];
   if (username) {
-    try {
-      // Remove user from database
-      removeUser(username);
-      console.log(`Removed ${username} from database (disconnect)`);
-
-      // Notify others that user went offline
-      io.emit("userOffline", {
-        username,
-        timestamp: new Date().toISOString(),
-      });
-
-      // Remove from in-memory cache
-      delete users[username];
-      delete invertUsers[socket.id];
-
-      // Broadcast updated user list from database
-      const onlineUsers = getOnlineUsers();
-      const usersList = onlineUsers.map((user) => ({
-        name: user.username,
-        avatar: user.avatar,
-      }));
-      io.emit("usersList", usersList);
-    } catch (error) {
-      console.error("Error handling disconnect:", error);
-    }
+    delete users[username];
+    delete invertUsers[socket.id];
+    delete userAvatars[username];
+    console.log(`Removed ${username}`);
+    // Broadcast updated user list with avatars to all clients
+    const usersList = Object.keys(users).map(username => ({
+      name: username,
+      avatar: userAvatars[username] || null
+    }));
+    io.emit("usersList", usersList);
   }
 };

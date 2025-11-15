@@ -10,6 +10,8 @@ const handlers = require("./socket-handler");
 
 dotenv.config({ path: "./config/config.env"});
 
+const PORT = process.env.PORT || 5000;
+
 const app = express();
 const server = http.createServer(app);
 app.use(cors());
@@ -78,13 +80,11 @@ app.post('/upload-image', (req, res) => {
   });
 });
 
-const PORT = process.env.PORT;
-
 // Initialize database
 initDB();
 
 server.listen(PORT, '0.0.0.0', () => {
   console.log(`Server running on:`);
   console.log(`  - Local:   http://localhost:${PORT}`);
-  console.log(`  - Network: http://10.61.13.143:${PORT}`);
+  console.log(`  - Network: http://192.168.1.46:${PORT}`);
 });

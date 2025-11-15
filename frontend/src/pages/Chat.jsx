@@ -79,29 +79,14 @@ const Chat = ({ socket }) => {
       });
     };
 
-    // Listen for user online/offline events
-    const handleUserOnline = (data) => {
-      console.log(`${data.username} came online`);
-      // You can show a notification here
-    };
-
-    const handleUserOffline = (data) => {
-      console.log(`${data.username} went offline`);
-      // You can show a notification here
-    };
-
     socket.on('message', handleMessage);
     socket.on('messageHistory', handleMessageHistory);
     socket.on('groupsList', handleGroupsList);
-    socket.on('userOnline', handleUserOnline);
-    socket.on('userOffline', handleUserOffline);
     
     return () => {
       socket.off('message', handleMessage);
       socket.off('messageHistory', handleMessageHistory);
       socket.off('groupsList', handleGroupsList);
-      socket.off('userOnline', handleUserOnline);
-      socket.off('userOffline', handleUserOffline);
     };
   }, [socket]);
 
@@ -138,6 +123,22 @@ const Chat = ({ socket }) => {
     return () => window.removeEventListener('beforeunload', handleBeforeUnload);
   }, []);
 
+  // Function to load history for a specific chat - use useCallback to prevent recreation
+  const loadChatHistory = useCallback((chatKey, messageType, recipientId, groupId) => {
+    if (!socket) return;
+    if (historyLoaded.current[chatKey]) return;
+    
+    // Mark as loading to prevent duplicate requests
+    historyLoaded.current[chatKey] = 'loading';
+    
+    socket.emit('getMessageHistory', {
+      chatKey,
+      messageType,
+      recipientId,
+      groupId
+    });
+  }, [socket]);
+
   const handleOut = async () => {
     // Emit logout event to server
     if (socket) {
@@ -156,22 +157,6 @@ const Chat = ({ socket }) => {
     sessionStorage.clear();
     navigate("/");
   };
-
-  // Function to load history for a specific chat - use useCallback to prevent recreation
-  const loadChatHistory = useCallback((chatKey, messageType, recipientId, groupId) => {
-    if (!socket) return;
-    if (historyLoaded.current[chatKey]) return;
-    
-    // Mark as loading to prevent duplicate requests
-    historyLoaded.current[chatKey] = 'loading';
-    
-    socket.emit('getMessageHistory', {
-      chatKey,
-      messageType,
-      recipientId,
-      groupId
-    });
-  }, [socket]);
 
   return (
     <div className="w-full h-dvh">
