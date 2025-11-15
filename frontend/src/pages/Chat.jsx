@@ -13,9 +13,9 @@ const Chat = ({ socket }) => {
     sessionStorage.getItem('selectedGroupName') || null
   );
   const [slidingBlock, animate] = useAnimate();
-  const navigate = useNavigate();
   const [chatHistory, setChatHistory] = useState({});
   const myUsername = useRef(localStorage.getItem('name'));
+  const navigate = useNavigate();
   const historyLoaded = useRef({});
   const groupsData = useRef({});
 
