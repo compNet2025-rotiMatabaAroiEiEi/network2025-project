@@ -1,6 +1,7 @@
 const mongoose = require('mongoose');
 const Message = require('./models/Message');
 const Group = require('./models/Group');
+const User = require('./models/User');
 
 // Initialize database connection
 const initDB = async () => {
@@ -112,6 +113,80 @@ const updateGroup = async (groupId, updatedData) => {
   }
 };
 
+// Add user to database
+const addUser = async (userData) => {
+  try {
+    // Check if user already exists
+    const existingUser = await User.findOne({ username: userData.username });
+    if (existingUser) {
+      // Update existing user
+      existingUser.socketId = userData.socketId;
+      existingUser.avatar = userData.avatar;
+      existingUser.status = 'online';
+      existingUser.loginAt = new Date();
+      existingUser.lastSeen = new Date();
+      await existingUser.save();
+      return existingUser;
+    }
+    
+    // Create new user
+    const user = new User(userData);
+    await user.save();
+    return user;
+  } catch (error) {
+    console.error('Error saving user:', error);
+    throw error;
+  }
+};
+
+// Get all online users
+const getOnlineUsers = async () => {
+  try {
+    const users = await User.find({ status: 'online' }).sort({ loginAt: -1 });
+    return users;
+  } catch (error) {
+    console.error('Error fetching online users:', error);
+    return [];
+  }
+};
+
+// Remove user from database
+const removeUser = async (username) => {
+  try {
+    const result = await User.deleteOne({ username });
+    return result.deletedCount > 0;
+  } catch (error) {
+    console.error('Error removing user:', error);
+    return false;
+  }
+};
+
+// Update user status
+const updateUserStatus = async (username, status) => {
+  try {
+    const user = await User.findOneAndUpdate(
+      { username },
+      { status, lastSeen: new Date() },
+      { new: true }
+    );
+    return user;
+  } catch (error) {
+    console.error('Error updating user status:', error);
+    return null;
+  }
+};
+
+// Check if username is taken
+const isUsernameTaken = async (username) => {
+  try {
+    const user = await User.findOne({ username });
+    return !!user;
+  } catch (error) {
+    console.error('Error checking username:', error);
+    return false;
+  }
+};
+
 module.exports = { 
   initDB, 
   addMessage, 
@@ -119,5 +194,10 @@ module.exports = {
   getMessagesByType,
   addGroup, 
   getGroups, 
-  updateGroup
+  updateGroup,
+  addUser,
+  getOnlineUsers,
+  removeUser,
+  updateUserStatus,
+  isUsernameTaken
 };

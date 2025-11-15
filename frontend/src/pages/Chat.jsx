@@ -1,7 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from "react";
-import { Outlet } from "react-router-dom";
+import { Outlet, useNavigate } from "react-router-dom";
 import { motion, useAnimate } from "motion/react";
-import { useNavigate } from "react-router-dom";
 import { SPRING_ANIMATION_TRANSITION } from "../style/animation";
 
 const Chat = ({ socket }) => {
@@ -138,6 +137,11 @@ const Chat = ({ socket }) => {
   }, []);
 
   const handleOut = async () => {
+    // Emit logout event to server
+    if (socket) {
+      socket.emit('logout');
+    }
+
     await Promise.all([
       animate(
         slidingBlock.current,
@@ -147,6 +151,7 @@ const Chat = ({ socket }) => {
     ]);
 
     localStorage.clear();
+    sessionStorage.clear();
     navigate("/");
   };
 

@@ -25,6 +25,7 @@ io.on("connection", (socket) => {
   socket.on("typing", handlers.typingHandler(io, socket));
   socket.on("userStatus", handlers.userStatusHandler(io, socket));
   socket.on("messageRead", handlers.messageReadHandler(io, socket));
+  socket.on("logout", handlers.logoutHandler(io, socket));
   socket.on("disconnect", handlers.disconnectHandler(io, socket));
 });
 

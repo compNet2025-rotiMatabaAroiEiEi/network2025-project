@@ -1,45 +1,65 @@
-const { addMessage, getMessagesByType, addGroup, getGroups } = require("./db");
+const { 
+  addMessage, 
+  getMessagesByType, 
+  addGroup, 
+  getGroups,
+  addUser,
+  getOnlineUsers,
+  removeUser,
+  isUsernameTaken
+} = require("./db");
 
-const users = {}; // { username: socket.id }
-const invertUsers = {}; // { socket.id : username }
-const userAvatars = {}; // { username: avatar }
+const users = {}; // { username: socket.id } - Keep for quick lookup
+const invertUsers = {}; // { socket.id : username } - Keep for quick lookup
 
 // Register username
-exports.registerHandler = (io, socket) => (data) => {
+exports.registerHandler = (io, socket) => async (data) => {
   const name = typeof data === 'string' ? data : data.name;
   const avatar = typeof data === 'object' ? data.avatar : null;
   
   console.log("register user:", name, ", id:", socket.id);
   
   // Check if username is already taken (currently online)
-  if (users[name]) {
+  const isTaken = await isUsernameTaken(name);
+  if (isTaken) {
     socket.emit("registerError", "Username is currently in use. Please try again later or choose a different username.");
     return;
   }
   
-  // Add to online users
-  users[name] = socket.id;
-  invertUsers[socket.id] = name;
-  if (avatar) {
-    userAvatars[name] = avatar;
+  try {
+    // Save user to MongoDB
+    await addUser({
+      username: name,
+      avatar: avatar,
+      socketId: socket.id,
+      status: 'online'
+    });
+    
+    // Add to in-memory cache for quick lookup
+    users[name] = socket.id;
+    invertUsers[socket.id] = name;
+    
+    socket.emit("registerSuccess", name);
+    console.log("User saved to database:", name);
+    
+    // Notify all users that someone came online
+    io.emit("userOnline", {
+      username: name,
+      avatar: avatar,
+      timestamp: new Date().toISOString()
+    });
+    
+    // Broadcast updated user list from database
+    const onlineUsers = await getOnlineUsers();
+    const usersList = onlineUsers.map(user => ({
+      name: user.username,
+      avatar: user.avatar
+    }));
+    io.emit("usersList", usersList);
+  } catch (error) {
+    console.error("Error registering user:", error);
+    socket.emit("registerError", "Failed to register. Please try again.");
   }
-  
-  socket.emit("registerSuccess", name);
-  console.log("Current users:", users);
-  
-  // Notify all users that someone came online
-  io.emit("userOnline", {
-    username: name,
-    avatar: avatar,
-    timestamp: new Date().toISOString()
-  });
-  
-  // Broadcast updated user list with avatars to all clients
-  const usersList = Object.keys(users).map(username => ({
-    name: username,
-    avatar: userAvatars[username] || null
-  }));
-  io.emit("usersList", usersList);
 };
 
 exports.broadcastHandler = (io, socket) => async (data) => {
@@ -103,13 +123,19 @@ exports.privateMessageHandler = (io, socket) => async (data) => {
   }
 };
 
-exports.getUsersHandler = (socket) => () => {
-  console.log("Send Users list:", Object.keys(users), "to", socket.id);
-  const usersList = Object.keys(users).map(username => ({
-    name: username,
-    avatar: userAvatars[username] || null
-  }));
-  socket.emit("usersList", usersList);
+exports.getUsersHandler = (socket) => async () => {
+  console.log("Send Users list to", socket.id);
+  try {
+    const onlineUsers = await getOnlineUsers();
+    const usersList = onlineUsers.map(user => ({
+      name: user.username,
+      avatar: user.avatar
+    }));
+    socket.emit("usersList", usersList);
+  } catch (error) {
+    console.error("Error getting users:", error);
+    socket.emit("usersList", []);
+  }
 };
 
 // Get groups list
@@ -248,27 +274,71 @@ exports.messageReadHandler = (io, socket) => (data) => {
   }
 };
 
-// Handle disconnect
-exports.disconnectHandler = (io, socket) => () => {
+// Handle logout (when user clicks BYE)
+exports.logoutHandler = (io, socket) => async () => {
+  console.log("User logout:", socket.id);
+  const username = invertUsers[socket.id];
+  if (username) {
+    try {
+      // Remove user from MongoDB
+      await removeUser(username);
+      console.log(`Logged out ${username} from database`);
+      
+      // Notify others that user went offline
+      io.emit("userOffline", {
+        username,
+        timestamp: new Date().toISOString()
+      });
+      
+      // Remove from in-memory cache
+      delete users[username];
+      delete invertUsers[socket.id];
+      
+      // Broadcast updated user list from database
+      const onlineUsers = await getOnlineUsers();
+      const usersList = onlineUsers.map(user => ({
+        name: user.username,
+        avatar: user.avatar
+      }));
+      io.emit("usersList", usersList);
+      
+      // Confirm logout to client
+      socket.emit("logoutSuccess");
+    } catch (error) {
+      console.error("Error handling logout:", error);
+    }
+  }
+};
+
+// Handle disconnect (when connection is lost)
+exports.disconnectHandler = (io, socket) => async () => {
   console.log("Client disconnected:", socket.id);
   const username = invertUsers[socket.id];
   if (username) {
-    // Notify others that user went offline
-    io.emit("userOffline", {
-      username,
-      timestamp: new Date().toISOString()
-    });
-    
-    delete users[username];
-    delete invertUsers[socket.id];
-    delete userAvatars[username];
-    console.log(`Removed ${username}`);
-    
-    // Broadcast updated user list with avatars to all clients
-    const usersList = Object.keys(users).map(username => ({
-      name: username,
-      avatar: userAvatars[username] || null
-    }));
-    io.emit("usersList", usersList);
+    try {
+      // Remove user from MongoDB
+      await removeUser(username);
+      console.log(`Removed ${username} from database (disconnect)`);
+      
+      // Notify others that user went offline
+      io.emit("userOffline", {
+        username,
+        timestamp: new Date().toISOString()
+      });
+      
+      // Remove from in-memory cache
+      delete users[username];
+      delete invertUsers[socket.id];
+      
+      // Broadcast updated user list from database
+      const onlineUsers = await getOnlineUsers();
+      const usersList = onlineUsers.map(user => ({
+        name: user.username,
+        avatar: user.avatar
+      }));
+      io.emit("usersList", usersList);
+    } catch (error) {
+      console.error("Error handling disconnect:", error);
+    }
   }
 };
