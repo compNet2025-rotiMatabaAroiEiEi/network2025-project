@@ -73,7 +73,7 @@ const Login = ({socket}) => {
   return (
     <div className="grid grid-cols-2 min-h-dvh bg-(--red-color-tier3)">
       <div className="bg-[url('asset/bg_login.png')] bg-cover bg-center flex flex-col justify-evenly items-center text-center">
-        <h1 className="text-stroke text-7xl font-bold">Yuletde666</h1>
+        <h1 className="text-stroke text-7xl font-bold">Yuletide666</h1>
         <div className="w-[350px] h-[350px] border-3 border-white rounded-full overflow-hidden relative">
           <motion.img
             initial={{ y: "-100%" }}
