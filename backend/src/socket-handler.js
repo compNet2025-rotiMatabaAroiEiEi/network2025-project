@@ -27,6 +27,13 @@ exports.registerHandler = (io, socket) => (data) => {
   socket.emit("registerSuccess", name);
   console.log("Current users:", users);
   
+  // Notify all users that someone came online
+  io.emit("userOnline", {
+    username: name,
+    avatar: avatar,
+    timestamp: new Date().toISOString()
+  });
+  
   // Broadcast updated user list with avatars to all clients
   const usersList = Object.keys(users).map(username => ({
     name: username,
@@ -182,15 +189,81 @@ exports.groupMessageHandler = (io, socket) => async (data) => {
   io.emit("message", messageData);
 };
 
+// Typing indicator handler
+exports.typingHandler = (io, socket) => (data) => {
+  const username = invertUsers[socket.id];
+  const { chatType, recipientId, groupId, isTyping } = data;
+  
+  if (chatType === 'private' && recipientId) {
+    const toId = users[recipientId];
+    if (toId) {
+      io.to(toId).emit("userTyping", {
+        username,
+        chatType,
+        isTyping
+      });
+    }
+  } else if (chatType === 'group' && groupId) {
+    io.emit("userTyping", {
+      username,
+      chatType,
+      groupId,
+      isTyping
+    });
+  } else if (chatType === 'global') {
+    socket.broadcast.emit("userTyping", {
+      username,
+      chatType,
+      isTyping
+    });
+  }
+};
+
+// User online status handler
+exports.userStatusHandler = (io, socket) => (data) => {
+  const username = invertUsers[socket.id];
+  const { status } = data; // 'online', 'away', 'busy'
+  
+  io.emit("userStatus", {
+    username,
+    status,
+    timestamp: new Date().toISOString()
+  });
+};
+
+// Message read receipt handler
+exports.messageReadHandler = (io, socket) => (data) => {
+  const username = invertUsers[socket.id];
+  const { messageId, chatType, recipientId } = data;
+  
+  if (chatType === 'private' && recipientId) {
+    const toId = users[recipientId];
+    if (toId) {
+      io.to(toId).emit("messageRead", {
+        messageId,
+        readBy: username,
+        timestamp: new Date().toISOString()
+      });
+    }
+  }
+};
+
 // Handle disconnect
 exports.disconnectHandler = (io, socket) => () => {
   console.log("Client disconnected:", socket.id);
   const username = invertUsers[socket.id];
   if (username) {
+    // Notify others that user went offline
+    io.emit("userOffline", {
+      username,
+      timestamp: new Date().toISOString()
+    });
+    
     delete users[username];
     delete invertUsers[socket.id];
     delete userAvatars[username];
     console.log(`Removed ${username}`);
+    
     // Broadcast updated user list with avatars to all clients
     const usersList = Object.keys(users).map(username => ({
       name: username,

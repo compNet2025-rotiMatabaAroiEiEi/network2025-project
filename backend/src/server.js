@@ -22,6 +22,9 @@ io.on("connection", (socket) => {
   socket.on("getGroups", handlers.getGroupsHandler(socket));
   socket.on("createGroup", handlers.createGroupHandler(io, socket));
   socket.on("getMessageHistory", handlers.getMessageHistoryHandler(socket));
+  socket.on("typing", handlers.typingHandler(io, socket));
+  socket.on("userStatus", handlers.userStatusHandler(io, socket));
+  socket.on("messageRead", handlers.messageReadHandler(io, socket));
   socket.on("disconnect", handlers.disconnectHandler(io, socket));
 });
 

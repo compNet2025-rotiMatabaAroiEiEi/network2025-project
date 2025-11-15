@@ -8,7 +8,9 @@ import { SPRING_ANIMATION_TRANSITION } from "../style/animation";
 
 const ChatBox = ({ name, socket, chatType, roomId, messages = [] }) => {
   const [message, setMessage] = useState("");
+  const [typingUsers, setTypingUsers] = useState([]);
   const chatBoxSpaceRef = useRef(null);
+  const typingTimeoutRef = useRef(null);
 
   console.log('ChatBox render:', name, 'messages:', messages.length, messages);
 
@@ -38,6 +40,66 @@ const ChatBox = ({ name, socket, chatType, roomId, messages = [] }) => {
       });
     }
   }, [messages]);
+
+  // Listen for typing indicators
+  useEffect(() => {
+    if (!socket) return;
+
+    const handleUserTyping = (data) => {
+      const { username, chatType: typingChatType, groupId, isTyping } = data;
+      
+      // Check if typing event is for current chat
+      let isRelevant = false;
+      if (chatType === 'global' && typingChatType === 'global') {
+        isRelevant = true;
+      } else if (chatType === 'private' && typingChatType === 'private' && username === roomId) {
+        isRelevant = true;
+      } else if (chatType === 'group' && typingChatType === 'group' && groupId === roomId) {
+        isRelevant = true;
+      }
+
+      if (isRelevant) {
+        if (isTyping) {
+          setTypingUsers(prev => [...new Set([...prev, username])]);
+        } else {
+          setTypingUsers(prev => prev.filter(u => u !== username));
+        }
+      }
+    };
+
+    socket.on('userTyping', handleUserTyping);
+
+    return () => {
+      socket.off('userTyping', handleUserTyping);
+    };
+  }, [socket, chatType, roomId]);
+
+  const handleTyping = () => {
+    if (!socket) return;
+
+    // Emit typing event
+    socket.emit('typing', {
+      chatType,
+      recipientId: chatType === 'private' ? roomId : null,
+      groupId: chatType === 'group' ? roomId : null,
+      isTyping: true
+    });
+
+    // Clear previous timeout
+    if (typingTimeoutRef.current) {
+      clearTimeout(typingTimeoutRef.current);
+    }
+
+    // Set timeout to stop typing indicator
+    typingTimeoutRef.current = setTimeout(() => {
+      socket.emit('typing', {
+        chatType,
+        recipientId: chatType === 'private' ? roomId : null,
+        groupId: chatType === 'group' ? roomId : null,
+        isTyping: false
+      });
+    }, 1000);
+  };
 
   const sendMessage = () => {
     if(!message.trim() || !socket) return;
@@ -120,7 +182,10 @@ const ChatBox = ({ name, socket, chatType, roomId, messages = [] }) => {
       <div className="w-full p-4 bg-(--green-color)">
         <textarea
           value={message}
-          onChange={(e) => setMessage(e.target.value)}
+          onChange={(e) => {
+            setMessage(e.target.value);
+            handleTyping();
+          }}
           onKeyDown={(e) => {
             if(e.key === 'Enter' && !e.shiftKey){
               e.preventDefault();
@@ -131,6 +196,14 @@ const ChatBox = ({ name, socket, chatType, roomId, messages = [] }) => {
           autoComplete="off"
           placeholder="Type a message"
         />
+        {typingUsers.length > 0 && (
+          <div className="text-sm text-gray-600 mt-1 italic">
+            {typingUsers.length === 1 
+              ? `${typingUsers[0]} is typing...`
+              : `${typingUsers.join(', ')} are typing...`
+            }
+          </div>
+        )}
         <div className="flex justify-between items-center">
           <div className="flex gap-4 items-center">
             <IconInsertVoice className="icon icon-chatbox icon-chatbox-insert-voice" />

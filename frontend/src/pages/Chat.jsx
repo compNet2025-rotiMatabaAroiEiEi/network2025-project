@@ -78,14 +78,29 @@ const Chat = ({ socket }) => {
       });
     };
 
+    // Listen for user online/offline events
+    const handleUserOnline = (data) => {
+      console.log(`${data.username} came online`);
+      // You can show a notification here
+    };
+
+    const handleUserOffline = (data) => {
+      console.log(`${data.username} went offline`);
+      // You can show a notification here
+    };
+
     socket.on('message', handleMessage);
     socket.on('messageHistory', handleMessageHistory);
     socket.on('groupsList', handleGroupsList);
+    socket.on('userOnline', handleUserOnline);
+    socket.on('userOffline', handleUserOffline);
     
     return () => {
       socket.off('message', handleMessage);
       socket.off('messageHistory', handleMessageHistory);
       socket.off('groupsList', handleGroupsList);
+      socket.off('userOnline', handleUserOnline);
+      socket.off('userOffline', handleUserOffline);
     };
   }, [socket]);
 
