@@ -34,9 +34,12 @@ app.get("/", (req, res) => {
 
 const PORT = process.env.PORT;
 
-// Initialize database
-initDB();
-
-server.listen(PORT, () => {
-  console.log(`Server running on http://localhost:${PORT}`);
+// Initialize database and start server
+initDB().then(() => {
+  server.listen(PORT, () => {
+    console.log(`Server running on http://localhost:${PORT}`);
+  });
+}).catch((error) => {
+  console.error('Failed to initialize database:', error);
+  process.exit(1);
 });

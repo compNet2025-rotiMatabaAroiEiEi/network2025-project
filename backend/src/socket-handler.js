@@ -1,4 +1,4 @@
-const { addMessage, getMessages, addGroup, getGroups } = require("./db");
+const { addMessage, getMessagesByType, addGroup, getGroups } = require("./db");
 
 const users = {}; // { username: socket.id }
 const invertUsers = {}; // { socket.id : username }
@@ -46,9 +46,9 @@ exports.broadcastHandler = (io, socket) => async (data) => {
     messageType: 'global'
   };
   
-  // Save to JSON database
+  // Save to MongoDB
   try {
-    addMessage({
+    await addMessage({
       username: messageData.username,
       message: messageData.message,
       avatar: messageData.avatar,
@@ -77,9 +77,9 @@ exports.privateMessageHandler = (io, socket) => async (data) => {
       recipientId: data.recipientId
     };
     
-    // Save to JSON database
+    // Save to MongoDB
     try {
-      addMessage({
+      await addMessage({
         username: messageData.username,
         message: messageData.message,
         avatar: messageData.avatar,
@@ -106,14 +106,14 @@ exports.getUsersHandler = (socket) => () => {
 };
 
 // Get groups list
-exports.getGroupsHandler = (socket) => () => {
+exports.getGroupsHandler = (socket) => async () => {
   console.log("Send Groups list to", socket.id);
-  const groupsList = getGroups();
+  const groupsList = await getGroups();
   socket.emit("groupsList", groupsList);
 };
 
 // Create new group
-exports.createGroupHandler = (io, socket) => (data) => {
+exports.createGroupHandler = (io, socket) => async (data) => {
   const { groupName, members } = data;
   const creator = invertUsers[socket.id];
   const groupId = `group_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
@@ -128,40 +128,22 @@ exports.createGroupHandler = (io, socket) => (data) => {
     createdAt: new Date().toISOString()
   };
   
-  // Save to database
-  addGroup(newGroup);
+  // Save to MongoDB
+  await addGroup(newGroup);
   
   // Broadcast updated groups list to all clients
-  const groupsList = getGroups();
+  const groupsList = await getGroups();
   io.emit("groupsList", groupsList);
   socket.emit("groupCreated", { groupId, groupName });
 };
 
-// Get message history from JSON database
-exports.getMessageHistoryHandler = (socket) => (data) => {
+// Get message history from MongoDB
+exports.getMessageHistoryHandler = (socket) => async (data) => {
   try {
     const { messageType, recipientId, groupId } = data;
     const username = invertUsers[socket.id];
     
-    let messages = getMessages(msg => {
-      if (messageType === 'global') {
-        return msg.messageType === 'global';
-      } else if (messageType === 'private') {
-        // Get messages between current user and recipient
-        return msg.messageType === 'private' && (
-          (msg.username === username && msg.recipientId === recipientId) ||
-          (msg.username === recipientId && msg.recipientId === username)
-        );
-      } else if (messageType === 'group') {
-        return msg.messageType === 'group' && msg.groupId === groupId;
-      }
-      return false;
-    });
-    
-    // Sort by timestamp and limit to last 100 messages
-    messages = messages
-      .sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp))
-      .slice(-100);
+    const messages = await getMessagesByType(messageType, recipientId, groupId, username);
     
     socket.emit("messageHistory", { chatKey: data.chatKey, messages });
   } catch (error) {
@@ -182,9 +164,9 @@ exports.groupMessageHandler = (io, socket) => async (data) => {
     messageType: 'group'
   };
   
-  // Save to JSON database
+  // Save to MongoDB
   try {
-    addMessage({
+    await addMessage({
       username: messageData.username,
       message: messageData.message,
       avatar: messageData.avatar,
