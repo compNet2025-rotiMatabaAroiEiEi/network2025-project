@@ -280,6 +280,38 @@
       "avatar": "/src/asset/avatar_santa.png",
       "messageType": "global",
       "timestamp": "2025-11-15T19:17:30.873Z"
+    },
+    {
+      "username": "mango",
+      "contentType": "text",
+      "content": "kjhdrsegsad",
+      "avatar": "/src/asset/avatar_reindeer.png",
+      "messageType": "global",
+      "timestamp": "2025-11-15T19:25:13.512Z"
+    },
+    {
+      "username": "mango",
+      "contentType": "voice",
+      "content": "http://192.168.1.46:5000/uploads/audio/1763234725091-voice-message.webm",
+      "avatar": "/src/asset/avatar_reindeer.png",
+      "messageType": "global",
+      "timestamp": "2025-11-15T19:25:25.103Z"
+    },
+    {
+      "username": "mango",
+      "contentType": "voice",
+      "content": "http://192.168.1.46:5000/uploads/audio/1763234884841-voice-message.webm",
+      "avatar": "/src/asset/avatar_reindeer.png",
+      "messageType": "global",
+      "timestamp": "2025-11-15T19:28:04.851Z"
+    },
+    {
+      "username": "mango",
+      "contentType": "voice",
+      "content": "http://192.168.1.46:5000/uploads/audio/1763234898337-voice-message.webm",
+      "avatar": "/src/asset/avatar_reindeer.png",
+      "messageType": "global",
+      "timestamp": "2025-11-15T19:28:18.347Z"
     }
   ],
   "groups": [

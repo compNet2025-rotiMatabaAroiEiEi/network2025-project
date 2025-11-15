@@ -10,6 +10,8 @@ const handlers = require("./socket-handler");
 
 dotenv.config({ path: "./config/config.env"});
 
+const PORT = process.env.PORT || 5000;
+
 const app = express();
 const server = http.createServer(app);
 app.use(cors());
@@ -77,8 +79,6 @@ app.post('/upload-image', (req, res) => {
     res.json({url: fileUrl});
   });
 });
-
-const PORT = process.env.PORT;
 
 // Initialize database
 initDB();
