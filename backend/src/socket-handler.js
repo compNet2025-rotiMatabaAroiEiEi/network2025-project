@@ -1,4 +1,9 @@
-const { addMessage, getMessages, addGroup, getGroups } = require("./db");
+const { 
+  addMessage,
+  getMessages,  
+  addGroup, 
+  getGroups 
+} = require("./db");
 
 const users = {}; // { username: socket.id }
 const invertUsers = {}; // { socket.id : username }
@@ -39,18 +44,21 @@ exports.broadcastHandler = (io, socket) => async (data) => {
   console.log("Broadcast message:", data, "from", socket.id);
   const messageData = {
     username: invertUsers[socket.id],
-    message: data.message,
+    // message: data.message,
     timestamp: data.timestamp || new Date().toISOString(),
     userId: socket.id,
     avatar: data.avatar,
-    messageType: 'global'
+    messageType: 'global',
+    contentType: data.contentType,
+    content: data.content
   };
   
   // Save to JSON database
   try {
     addMessage({
       username: messageData.username,
-      message: messageData.message,
+      contentType: messageData.contentType,
+      content: messageData.content,
       avatar: messageData.avatar,
       messageType: 'global',
       timestamp: messageData.timestamp
@@ -69,22 +77,25 @@ exports.privateMessageHandler = (io, socket) => async (data) => {
     console.log("Send message:", data.message, "from", socket.id, "to", toId);
     const messageData = {
       username: invertUsers[socket.id],
-      message: data.message,
+      // message: data.message,
       timestamp: data.timestamp || new Date().toISOString(),
       userId: socket.id,
       avatar: data.avatar,
       messageType: 'private',
-      recipientId: data.recipientId
+      recipientId: data.recipientId,
+      contentType: data.contentType,
+      content: data.content
     };
     
     // Save to JSON database
     try {
       addMessage({
         username: messageData.username,
-        message: messageData.message,
+        contentType: messageData.contentType,
+        content: messageData.content,
         avatar: messageData.avatar,
         messageType: 'private',
-        recipientId: data.recipientId,
+        recipientId: messageData.recipientId,
         timestamp: messageData.timestamp
       });
     } catch (error) {
@@ -174,22 +185,26 @@ exports.groupMessageHandler = (io, socket) => async (data) => {
   console.log("Group message:", data, "from", socket.id);
   const messageData = {
     username: invertUsers[socket.id],
-    message: data.message,
+    // message: data.message,
     timestamp: data.timestamp || new Date().toISOString(),
     userId: socket.id,
     groupId: data.groupId,
     avatar: data.avatar,
-    messageType: 'group'
+    messageType: 'group',
+    contentType: data.contentType,
+    content: data.content,
   };
   
   // Save to JSON database
   try {
     addMessage({
       username: messageData.username,
-      message: messageData.message,
+      // message: messageData.message,
+      contentType: messageData.contentType,
+      content: messageData.content,
       avatar: messageData.avatar,
       messageType: 'group',
-      groupId: data.groupId,
+      groupId: messageData.groupId,
       timestamp: messageData.timestamp
     });
   } catch (error) {

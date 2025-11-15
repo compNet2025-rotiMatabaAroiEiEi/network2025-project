@@ -40,7 +40,8 @@ const Chat = ({ socket }) => {
           newHistory[chatKey] = [...(prev[chatKey] || []), {
             name: data.username,
             image: data.avatar,
-            message: data.message,
+            content: data.content,
+            contentType: data.contentType,
             isMe: data.username === myUsername.current
           }];
           return newHistory;
@@ -53,7 +54,8 @@ const Chat = ({ socket }) => {
       const formattedMessages = messages.map(msg => ({
         name: msg.username,
         image: msg.avatar,
-        message: msg.message,
+        content: msg.content,
+        contentType: msg.contentType,
         isMe: msg.username === myUsername.current
       }));
       
