@@ -5,18 +5,12 @@ import { SPRING_ANIMATION_TRANSITION } from "../style/animation";
 
 const Chat = ({ socket }) => {
   const [privateChatName, setPrivateChatName] = useState(null);
-  const [groupChatName, setGroupChatName] = useState(
-    sessionStorage.getItem('selectedGroupId') || null
-  );
-  const [groupDisplayName, setGroupDisplayName] = useState(
-    sessionStorage.getItem('selectedGroupName') || null
-  );
-  const [slidingBlock, animate] = useAnimate();
+  const [groupChatName, setGroupChatName] = useState(null);
   const [chatHistory, setChatHistory] = useState({});
-  const myUsername = useRef(localStorage.getItem('name'));
-  const navigate = useNavigate();
+  const myUsername = useRef(localStorage.getItem("name"));
+  const [slidingBlock, animate] = useAnimate();
   const historyLoaded = useRef({});
-  const groupsData = useRef({});
+  const navigate = useNavigate();
 
   // Listen for new messages
   useEffect(() => {
@@ -24,91 +18,66 @@ const Chat = ({ socket }) => {
 
     const handleMessage = (data) => {
       let chatKey;
-      
-      // Determine which chat this message belongs to based on messageType
-      if (data.messageType === 'global') {
-        chatKey = 'global';
-      } else if (data.messageType === 'private') {
-        // For private messages, use the other person's username
-        const otherUser = data.username === myUsername.current 
-          ? data.recipientId 
-          : data.username;
+
+      if (data.messageType === "global") {
+        chatKey = "global";
+      } else if (data.messageType === "private") {
+        const otherUser =
+          data.username === myUsername.current
+            ? data.recipientId
+            : data.username;
         chatKey = `private:${otherUser}`;
-      } else if (data.messageType === 'group') {
+      } else if (data.messageType === "group") {
         chatKey = `group:${data.groupId}`;
       }
 
       if (chatKey) {
-        setChatHistory(prev => {
+        setChatHistory((prev) => {
           const newHistory = { ...prev };
-          newHistory[chatKey] = [...(prev[chatKey] || []), {
-            name: data.username,
-            image: data.avatar,
-            content: data.content || data.message, // Fallback for old messages
-            contentType: data.contentType || 'text', // Default to text
-            message: data.message, // Keep for backward compatibility
-            isMe: data.username === myUsername.current
-          }];
+          newHistory[chatKey] = [
+            ...(prev[chatKey] || []),
+            {
+              name: data.username,
+              image: data.avatar,
+              content: data.content,
+              contentType: data.contentType || "text",
+              isMe: data.username === myUsername.current,
+            },
+          ];
           return newHistory;
         });
       }
     };
 
-    // Listen for message history from backend
+    // load history message
     const handleMessageHistory = ({ chatKey, messages }) => {
-      const formattedMessages = messages.map(msg => ({
+      const formattedMessages = messages.map((msg) => ({
         name: msg.username,
         image: msg.avatar,
-        content: msg.content || msg.message, // Fallback for old messages
-        contentType: msg.contentType || 'text', // Default to text
-        message: msg.message, // Keep for backward compatibility
-        isMe: msg.username === myUsername.current
+        content: msg.content,
+        contentType: msg.contentType || "text",
+        isMe: msg.username === myUsername.current,
       }));
-      
-      setChatHistory(prev => ({
+
+      setChatHistory((prev) => ({
         ...prev,
-        [chatKey]: formattedMessages
+        [chatKey]: formattedMessages,
       }));
-      
+
       // Mark as loaded after receiving the data
       historyLoaded.current[chatKey] = true;
     };
 
-    // Listen for groups list to store group names
-    const handleGroupsList = (groups) => {
-      groups.forEach(group => {
-        groupsData.current[group.id] = group.name;
-      });
-    };
+    socket.on("message", handleMessage);
+    socket.on("messageHistory", handleMessageHistory);
 
-    socket.on('message', handleMessage);
-    socket.on('messageHistory', handleMessageHistory);
-    socket.on('groupsList', handleGroupsList);
-    
     return () => {
-      socket.off('message', handleMessage);
-      socket.off('messageHistory', handleMessageHistory);
-      socket.off('groupsList', handleGroupsList);
+      socket.off("message", handleMessage);
+      socket.off("messageHistory", handleMessageHistory);
     };
   }, [socket]);
 
-  // Update group display name when groupChatName changes
   useEffect(() => {
-    if (groupChatName && groupsData.current[groupChatName]) {
-      const displayName = groupsData.current[groupChatName];
-      setGroupDisplayName(displayName);
-      // Persist to sessionStorage
-      sessionStorage.setItem('selectedGroupId', groupChatName);
-      sessionStorage.setItem('selectedGroupName', displayName);
-    }
-  }, [groupChatName]);
-
-  // Clear group selection from sessionStorage when switching away from group chat
-  useEffect(() => {
-    const handleBeforeUnload = () => {
-      // Keep the selection on refresh
-    };
-
     const loadElement = async () => {
       await Promise.all([
         animate(
@@ -120,31 +89,30 @@ const Chat = ({ socket }) => {
     };
 
     loadElement();
-    
-    window.addEventListener('beforeunload', handleBeforeUnload);
-    return () => window.removeEventListener('beforeunload', handleBeforeUnload);
   }, []);
 
-  // Function to load history for a specific chat - use useCallback to prevent recreation
-  const loadChatHistory = useCallback((chatKey, messageType, recipientId, groupId) => {
-    if (!socket) return;
-    if (historyLoaded.current[chatKey]) return;
-    
-    // Mark as loading to prevent duplicate requests
-    historyLoaded.current[chatKey] = 'loading';
-    
-    socket.emit('getMessageHistory', {
-      chatKey,
-      messageType,
-      recipientId,
-      groupId
-    });
-  }, [socket]);
+  // Function to load history for a specifi cchat - use useCallback to prevent recreation
+  const loadChatHistory = useCallback(
+    (chatKey, messageType, recipientId, groupId) => {
+      if (!socket) return;
+      if (historyLoaded.current[chatKey]) return;
+
+      // Mark as loading to prevent duplicate requests
+      historyLoaded.current[chatKey] = "loading";
+
+      socket.emit("getMessageHistory", {
+        chatKey,
+        messageType,
+        recipientId,
+        groupId,
+      });
+    },
+    [socket]
+  );
 
   const handleOut = async () => {
-    // Emit logout event to server
     if (socket) {
-      socket.emit('logout');
+      socket.emit("logout");
     }
 
     await Promise.all([
@@ -156,7 +124,6 @@ const Chat = ({ socket }) => {
     ]);
 
     localStorage.clear();
-    sessionStorage.clear();
     navigate("/");
   };
 
@@ -173,7 +140,6 @@ const Chat = ({ socket }) => {
           setPrivateChatName,
           groupChatName,
           setGroupChatName,
-          groupDisplayName,
           chatHistory,
           loadChatHistory,
         }}

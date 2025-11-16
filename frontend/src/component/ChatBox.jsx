@@ -8,17 +8,13 @@ import { SPRING_ANIMATION_TRANSITION } from "../style/animation";
 
 const ChatBox = ({ name, socket, chatType, roomId, messages = [] }) => {
   const [message, setMessage] = useState("");
-  const [typingUsers, setTypingUsers] = useState([]);
   const chatBoxSpaceRef = useRef(null);
-  const typingTimeoutRef = useRef(null);
 
   const backendHost =
     import.meta.env.VITE_BACKEND_HOST || window.location.hostname;
-  console.log("ChatBox render:", name, "messages:", messages.length, messages);
 
   const displayImage = (data, prevData) => {
     if (data.name !== prevData) {
-      console.log("sadadsa", data);
       return (
         <div className="mt-3 flex items-end gap-2">
           <img
@@ -26,7 +22,6 @@ const ChatBox = ({ name, socket, chatType, roomId, messages = [] }) => {
             alt="avatar"
             className="avatar avatar-chatbox"
           />
-          {/* {(!data.isMe && data.name) || "???"} */}
           {data.name || "???"}
         </div>
       );
@@ -38,78 +33,9 @@ const ChatBox = ({ name, socket, chatType, roomId, messages = [] }) => {
     if (chatBoxSpaceRef.current) {
       chatBoxSpaceRef.current.scrollTo({
         top: chatBoxSpaceRef.current.scrollHeight,
-        // behavior: "smooth",
       });
     }
   }, [messages]);
-
-  // Listen for typing indicators
-  useEffect(() => {
-    if (!socket) return;
-
-    const handleUserTyping = (data) => {
-      const { username, chatType: typingChatType, groupId, isTyping } = data;
-
-      // Check if typing event is for current chat
-      let isRelevant = false;
-      if (chatType === "global" && typingChatType === "global") {
-        isRelevant = true;
-      } else if (
-        chatType === "private" &&
-        typingChatType === "private" &&
-        username === roomId
-      ) {
-        isRelevant = true;
-      } else if (
-        chatType === "group" &&
-        typingChatType === "group" &&
-        groupId === roomId
-      ) {
-        isRelevant = true;
-      }
-
-      if (isRelevant) {
-        if (isTyping) {
-          setTypingUsers((prev) => [...new Set([...prev, username])]);
-        } else {
-          setTypingUsers((prev) => prev.filter((u) => u !== username));
-        }
-      }
-    };
-
-    socket.on("userTyping", handleUserTyping);
-
-    return () => {
-      socket.off("userTyping", handleUserTyping);
-    };
-  }, [socket, chatType, roomId]);
-
-  const handleTyping = () => {
-    if (!socket) return;
-
-    // Emit typing event
-    socket.emit("typing", {
-      chatType,
-      recipientId: chatType === "private" ? roomId : null,
-      groupId: chatType === "group" ? roomId : null,
-      isTyping: true,
-    });
-
-    // Clear previous timeout
-    if (typingTimeoutRef.current) {
-      clearTimeout(typingTimeoutRef.current);
-    }
-
-    // Set timeout to stop typing indicator
-    typingTimeoutRef.current = setTimeout(() => {
-      socket.emit("typing", {
-        chatType,
-        recipientId: chatType === "private" ? roomId : null,
-        groupId: chatType === "group" ? roomId : null,
-        isTyping: false,
-      });
-    }, 1000);
-  };
 
   const sendMessage = () => {
     if (!message.trim() || !socket) return;
@@ -117,11 +43,11 @@ const ChatBox = ({ name, socket, chatType, roomId, messages = [] }) => {
     const messageData = {
       content: message.trim(),
       contentType: "text",
-      timestamp: new Date(),
       avatar: localStorage.getItem("img"),
     };
 
     if (chatType === "global") {
+      console.log(messageData);
       socket.emit("broadcast", messageData);
     } else if (chatType === "group") {
       socket.emit("groupMessage", { ...messageData, groupId: roomId });
@@ -146,7 +72,6 @@ const ChatBox = ({ name, socket, chatType, roomId, messages = [] }) => {
     const messageData = {
       content: content,
       contentType: contentType,
-      timestamp: new Date(),
       avatar: localStorage.getItem("img"),
     };
 
@@ -284,10 +209,6 @@ const ChatBox = ({ name, socket, chatType, roomId, messages = [] }) => {
         ref={chatBoxSpaceRef}
         className="w-full p-2 overflow-y-auto scrollbar-none flex-1"
       >
-        {messages.length === 0 && (
-          <div className="text-center text-gray-400 mt-4">No messages yet</div>
-        )}
-
         {messages.map((data, index) => {
           if (!data) {
             console.error("Invalid message data at index", index, data);
@@ -347,10 +268,7 @@ const ChatBox = ({ name, socket, chatType, roomId, messages = [] }) => {
       <div className="w-full p-4 bg-(--green-color)">
         <textarea
           value={message}
-          onChange={(e) => {
-            setMessage(e.target.value);
-            handleTyping();
-          }}
+          onChange={(e) => setMessage(e.target.value)}
           onKeyDown={(e) => {
             if (e.key === "Enter" && !e.shiftKey) {
               e.preventDefault();

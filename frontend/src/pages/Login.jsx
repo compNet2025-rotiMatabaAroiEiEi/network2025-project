@@ -12,7 +12,7 @@ import {
   SPRING_ANIMATION_TRANSITION,
 } from "../style/animation";
 
-const Login = ({socket}) => {
+const Login = ({ socket }) => {
   const imageList = [
     { src: santaImage, alt: "santa-avatar" },
     { src: santaFemaleImage, alt: "santa-female-avatar" },
@@ -31,7 +31,6 @@ const Login = ({socket}) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    localStorage.clear();
     localStorage.setItem("name", name);
     localStorage.setItem("img", img);
 
@@ -49,6 +48,12 @@ const Login = ({socket}) => {
     ]);
 
     navigate("/chat/global");
+
+    const username = localStorage.getItem("name");
+    const avatar = localStorage.getItem("img");
+    if (username && avatar) {
+      socket.emit("register", { name: username, avatar });
+    }
   };
 
   useEffect(() => {
