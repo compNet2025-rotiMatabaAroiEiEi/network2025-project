@@ -109,30 +109,64 @@ const ChatBox = ({ name, socket, chatType, roomId, messages = [] }) => {
 
     if (isRecording) {
       //stop recording
-      mediaRecorderRef.current.stop();
+      if (mediaRecorderRef.current && mediaRecorderRef.current.state !== "inactive") {
+        mediaRecorderRef.current.stop();
+      }
       setIsRecording(false);
     } else {
       //start recording
       try {
+        // Check if MediaRecorder is supported
+        if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+          alert("Your browser doesn't support audio recording.");
+          return;
+        }
+
         const stream = await navigator.mediaDevices.getUserMedia({
           audio: true,
         });
+        
         mediaStreamRef.current = stream;
-        mediaRecorderRef.current = new MediaRecorder(stream);
+        
+        // Try to use a compatible audio format
+        let mimeType = "audio/webm";
+        if (MediaRecorder.isTypeSupported("audio/webm;codecs=opus")) {
+          mimeType = "audio/webm;codecs=opus";
+        } else if (MediaRecorder.isTypeSupported("audio/ogg;codecs=opus")) {
+          mimeType = "audio/ogg;codecs=opus";
+        } else if (MediaRecorder.isTypeSupported("audio/mp4")) {
+          mimeType = "audio/mp4";
+        }
+        
+        mediaRecorderRef.current = new MediaRecorder(stream, { mimeType });
         audioChunksRef.current = [];
 
         mediaRecorderRef.current.addEventListener("dataavailable", (event) => {
-          audioChunksRef.current.push(event.data);
+          if (event.data.size > 0) {
+            audioChunksRef.current.push(event.data);
+          }
         });
 
         mediaRecorderRef.current.addEventListener("stop", async () => {
           const audioBlob = new Blob(audioChunksRef.current, {
-            type: "audio/webm",
+            type: mimeType,
           });
-          mediaStreamRef.current.getTracks().forEach((track) => track.stop());
+          
+          // Stop all tracks
+          if (mediaStreamRef.current) {
+            mediaStreamRef.current.getTracks().forEach((track) => track.stop());
+          }
+
+          // Check if we have audio data
+          if (audioBlob.size === 0) {
+            alert("No audio recorded. Please try again.");
+            setIsUploading(false);
+            return;
+          }
 
           const formData = new FormData();
-          formData.append("audioFile", audioBlob, "voice-message.webm");
+          const extension = mimeType.includes("webm") ? "webm" : mimeType.includes("ogg") ? "ogg" : "mp4";
+          formData.append("audioFile", audioBlob, `voice-message.${extension}`);
 
           setIsUploading(true);
           try {
@@ -145,7 +179,8 @@ const ChatBox = ({ name, socket, chatType, roomId, messages = [] }) => {
             );
 
             if (!response.ok) {
-              throw new Error("Audio upload failed");
+              const errorData = await response.json().catch(() => ({}));
+              throw new Error(errorData.error || "Audio upload failed");
             }
 
             const data = await response.json();
@@ -153,7 +188,7 @@ const ChatBox = ({ name, socket, chatType, roomId, messages = [] }) => {
             sendMediaMessage("voice", data.url);
           } catch (err) {
             console.error("Audio upload failed:", err);
-            alert("Error uploading voice message. Please try again.");
+            alert(`Error uploading voice message: ${err.message}`);
           } finally {
             setIsUploading(false);
           }
@@ -163,7 +198,13 @@ const ChatBox = ({ name, socket, chatType, roomId, messages = [] }) => {
         setIsRecording(true);
       } catch (err) {
         console.error("Error starting recording:", err);
-        alert("Could not access microphone.");
+        if (err.name === "NotAllowedError") {
+          alert("Microphone access denied. Please allow microphone access in your browser settings.");
+        } else if (err.name === "NotFoundError") {
+          alert("No microphone found. Please connect a microphone and try again.");
+        } else {
+          alert("Could not access microphone. Please check your browser settings.");
+        }
       }
     }
   };
@@ -263,7 +304,23 @@ const ChatBox = ({ name, socket, chatType, roomId, messages = [] }) => {
                 );
               case "voice":
                 return (
-                  <audio src={content} controls className="w-full max-w-xs" />
+                  <audio 
+                    controls 
+                    style={{ 
+                      width: '300px', 
+                      height: '40px',
+                      display: 'block'
+                    }}
+                    preload="metadata"
+                    onError={(e) => {
+                      console.error("Audio load error:", content, e.target.error);
+                    }}
+                  >
+                    <source src={content} type="audio/webm" />
+                    <source src={content} type="audio/ogg" />
+                    <source src={content} type="audio/mp4" />
+                    Your browser does not support the audio element.
+                  </audio>
                 );
               default:
                 return "[Unsupported message type]";
@@ -285,7 +342,8 @@ const ChatBox = ({ name, socket, chatType, roomId, messages = [] }) => {
               <div
                 className={`message ${
                   data.isMe ? "message-right" : "message-left"
-                }`}
+                } ${contentType === "voice" || contentType === "image" ? "!p-2" : ""}`}
+                style={contentType === "voice" ? { wordBreak: 'normal', overflow: 'visible' } : {}}
               >
                 {renderContent()}
               </div>
