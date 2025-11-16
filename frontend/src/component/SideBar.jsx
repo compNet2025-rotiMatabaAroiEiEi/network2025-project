@@ -5,13 +5,10 @@ import IconAddGroup from "../asset/icon_add_group.svg?react";
 import { motion, AnimatePresence } from "motion/react";
 import { SPRING_ANIMATION_TRANSITION } from "../style/animation";
 
-const SideBar = ({ chatType, socket, ...motionProps }) => {
+const SideBar = ({ chatType, socket, setMembers, isGroupMember, ...motionProps }) => {
   const [addGroupClicked, setAddGroupClicked] = useState(false);
   const [newGroupName, setNewGroupName] = useState("");
   const [allUsers, setAllUsers] = useState([]);
-  const [groupMembers, setGroupMembers] = useState({});
-  const [showMembersFor, setShowMembersFor] = useState(null);
-  const myUsername = localStorage.getItem("name");
   const sideBarContainerRef = useRef(null);
   const {
     privateChatName,
@@ -44,7 +41,7 @@ const SideBar = ({ chatType, socket, ...motionProps }) => {
   //  change new chat
   const handleChangeChat = (item) => {
     setters[chatType]?.(item.name);
-    
+
     // If it's a group, auto-join if not a member, then fetch members
     if (chatType === "group" && item.id) {
       if (!isGroupMember(item.id)) {
@@ -52,24 +49,6 @@ const SideBar = ({ chatType, socket, ...motionProps }) => {
       }
       socket.emit("getGroupMembers", { groupId: item.id });
     }
-  };
-
-  // Toggle showing members for a group
-  const handleShowMembers = (e, item) => {
-    e.stopPropagation();
-    if (showMembersFor === item.id) {
-      setShowMembersFor(null);
-    } else {
-      setShowMembersFor(item.id);
-      if (chatType === "group" && item.id) {
-        socket.emit("getGroupMembers", { groupId: item.id });
-      }
-    }
-  };
-
-  // Check if user is member of a group
-  const isGroupMember = (groupId) => {
-    return groupMembers[groupId]?.includes(myUsername);
   };
 
   const displayAddGroup = () => {
@@ -168,36 +147,15 @@ const SideBar = ({ chatType, socket, ...motionProps }) => {
     socket.emit(config.emit);
     socket.on(config.listen, config.handler);
 
-    // Listen for group members
-    const handleGroupMembers = ({ groupId, members }) => {
-      setGroupMembers((prev) => ({
-        ...prev,
-        [groupId]: members,
-      }));
+    const handleGroupMembers = ({ members }) => {
+      setMembers(members);
     };
 
     socket.on("groupMembers", handleGroupMembers);
 
-    // Listen for join responses (silent, no alert)
-    const handleJoinSuccess = ({ groupName }) => {
-      socket.emit("getGroups");
-    };
-
-    const handleJoinError = (error) => {
-      // Only show error if it's not "already a member"
-      if (!error.includes("Already a member")) {
-        alert(`Failed to join group: ${error}`);
-      }
-    };
-
-    socket.on("joinGroupSuccess", handleJoinSuccess);
-    socket.on("joinGroupError", handleJoinError);
-
     return () => {
       socket.off(config.listen, config.handler);
       socket.off("groupMembers", handleGroupMembers);
-      socket.off("joinGroupSuccess", handleJoinSuccess);
-      socket.off("joinGroupError", handleJoinError);
     };
   }, [socket, chatType, setGroupChatName]);
 
@@ -223,36 +181,8 @@ const SideBar = ({ chatType, socket, ...motionProps }) => {
             )}
             {displayLeftSideElement(item)}
             <p className="indicator-content flex-1">{item.name}</p>
-            {chatType === "group" && (
-              <button
-                onClick={(e) => handleShowMembers(e, item)}
-                className="indicator-content text-2xl px-2 hover:bg-(--red-color-tier3) rounded"
-              >
-                {showMembersFor === item.id ? "▼" : "▶"}
-              </button>
-            )}
             {displayRightSideElement()}
           </div>
-          
-          {/* Show members list for groups */}
-          {chatType === "group" && showMembersFor === item.id && (
-            <motion.div
-              initial={{ height: 0, opacity: 0 }}
-              animate={{ height: "auto", opacity: 1 }}
-              exit={{ height: 0, opacity: 0 }}
-              className="bg-(--red-color-tier3) px-4 py-2 text-2xl overflow-hidden"
-            >
-              <p className="font-bold mb-2">
-                Members ({groupMembers[item.id]?.length || 0}):
-              </p>
-              {groupMembers[item.id]?.map((member, idx) => (
-                <p key={idx} className="pl-4 py-1">
-                  • {member}
-                  {member === myUsername && " (You)"}
-                </p>
-              )) || <p className="pl-4 text-gray-400">Loading...</p>}
-            </motion.div>
-          )}
         </div>
       ))}
     </motion.div>

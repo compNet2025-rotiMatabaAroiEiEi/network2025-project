@@ -2,17 +2,23 @@ import SideBar from "../component/SideBar";
 import ChatBox from "../component/ChatBox";
 import NavBar from "../component/NavBar";
 import { useOutletContext } from "react-router";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { AnimatePresence } from "motion/react";
 import { SPRING_ANIMATION_TRANSITION } from "../style/animation";
 
 const ChatLayout = ({ chatType, socket }) => {
   const { privateChatName, groupChatName, chatHistory, loadChatHistory } =
     useOutletContext();
+  const [members, setMembers] = useState([]);
 
   const values = {
     private: privateChatName,
     group: groupChatName,
+  };
+
+    // Check if user is member of a group
+  const isGroupMember = (groupId) => {
+    return members[groupId]?.includes(localStorage.getItem("name"));
   };
 
   // Get chat key for storing messages
@@ -38,10 +44,35 @@ const ChatLayout = ({ chatType, socket }) => {
   useEffect(() => {
     if (chatType === "global") {
       loadChatHistory("global", "global");
+
+      if (!socket) return;
+      const handleAllUsers = (usersList) => {
+        setMembers(usersList);
+      };
+
+      socket.emit("getUsers");
+      socket.on("usersList", handleAllUsers);
+
+      return () => {
+        socket.off("usersList", handleAllUsers);
+      };
     } else if (chatType === "private" && privateChatName) {
       loadChatHistory(`private:${privateChatName}`, "private", privateChatName);
     } else if (chatType === "group" && groupChatName) {
       loadChatHistory(`group:${groupChatName}`, "group", null, groupChatName);
+
+      if (!socket) return;
+      const handleGroupMembers = ({ groupId, members }) => {
+        if (groupId === values[chatType]) {
+          setMembers(members);
+        }
+      };
+
+      socket.emit("getGroupMembers", { groupId: values[chatType] });
+      socket.on("groupMembers", handleGroupMembers);
+      return () => {
+        socket.off("groupMembers", handleGroupMembers);
+      };
     }
   }, [chatType, privateChatName, groupChatName, loadChatHistory]);
 
@@ -57,6 +88,8 @@ const ChatLayout = ({ chatType, socket }) => {
               animate={{ scaleX: 1 }}
               exit={{ scaleX: 0 }}
               transition={SPRING_ANIMATION_TRANSITION()}
+              setMembers={setMembers}
+              isGroupMember={isGroupMember}
               chatType={chatType}
               socket={socket}
             />
@@ -66,6 +99,7 @@ const ChatLayout = ({ chatType, socket }) => {
           <ChatBox
             key={currentChatKey}
             name={values[chatType] || "global"}
+            members={members}
             socket={socket}
             chatType={chatType}
             roomId={values[chatType] || "global"}
