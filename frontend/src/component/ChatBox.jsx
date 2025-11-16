@@ -3,13 +3,22 @@ import IconInsertFile from "../asset/icon_insert_file.svg?react";
 import IconSend from "../asset/icon_send.svg?react";
 import secretAvatar from "../asset/avatar_secret.png";
 import { useEffect, useRef, useState } from "react";
-import { motion, AnimatePresence } from "motion/react";
+import { motion, AnimatePresence, stagger } from "motion/react";
 import { SPRING_ANIMATION_TRANSITION } from "../style/animation";
+import Overlay from "./Overlay";
 
-const ChatBox = ({ name, socket, chatType, roomId, messages = [] }) => {
+const ChatBox = ({
+  name,
+  socket,
+  members,
+  chatType,
+  roomId,
+  messages = [],
+}) => {
   const [message, setMessage] = useState("");
-  const [groupMembers, setGroupMembers] = useState([]);
+  const [isShowMemberClicked, setIsShowMemberClicked] = useState(false);
   const chatBoxSpaceRef = useRef(null);
+  const me = useRef(localStorage.getItem("name"));
 
   const backendHost =
     import.meta.env.VITE_BACKEND_HOST || window.location.hostname;
@@ -37,24 +46,6 @@ const ChatBox = ({ name, socket, chatType, roomId, messages = [] }) => {
       });
     }
   }, [messages]);
-
-  // Fetch group members when chatType is group
-  useEffect(() => {
-    if (!socket || chatType !== "group") return;
-
-    const handleGroupMembers = ({ groupId, members }) => {
-      if (groupId === roomId) {
-        setGroupMembers(members);
-      }
-    };
-
-    socket.on("groupMembers", handleGroupMembers);
-    socket.emit("getGroupMembers", { groupId: roomId });
-
-    return () => {
-      socket.off("groupMembers", handleGroupMembers);
-    };
-  }, [socket, chatType, roomId]);
 
   const sendMessage = () => {
     if (!message.trim() || !socket) return;
@@ -109,7 +100,10 @@ const ChatBox = ({ name, socket, chatType, roomId, messages = [] }) => {
 
     if (isRecording) {
       //stop recording
-      if (mediaRecorderRef.current && mediaRecorderRef.current.state !== "inactive") {
+      if (
+        mediaRecorderRef.current &&
+        mediaRecorderRef.current.state !== "inactive"
+      ) {
         mediaRecorderRef.current.stop();
       }
       setIsRecording(false);
@@ -125,9 +119,9 @@ const ChatBox = ({ name, socket, chatType, roomId, messages = [] }) => {
         const stream = await navigator.mediaDevices.getUserMedia({
           audio: true,
         });
-        
+
         mediaStreamRef.current = stream;
-        
+
         // Try to use a compatible audio format
         let mimeType = "audio/webm";
         if (MediaRecorder.isTypeSupported("audio/webm;codecs=opus")) {
@@ -137,7 +131,7 @@ const ChatBox = ({ name, socket, chatType, roomId, messages = [] }) => {
         } else if (MediaRecorder.isTypeSupported("audio/mp4")) {
           mimeType = "audio/mp4";
         }
-        
+
         mediaRecorderRef.current = new MediaRecorder(stream, { mimeType });
         audioChunksRef.current = [];
 
@@ -151,7 +145,7 @@ const ChatBox = ({ name, socket, chatType, roomId, messages = [] }) => {
           const audioBlob = new Blob(audioChunksRef.current, {
             type: mimeType,
           });
-          
+
           // Stop all tracks
           if (mediaStreamRef.current) {
             mediaStreamRef.current.getTracks().forEach((track) => track.stop());
@@ -165,7 +159,11 @@ const ChatBox = ({ name, socket, chatType, roomId, messages = [] }) => {
           }
 
           const formData = new FormData();
-          const extension = mimeType.includes("webm") ? "webm" : mimeType.includes("ogg") ? "ogg" : "mp4";
+          const extension = mimeType.includes("webm")
+            ? "webm"
+            : mimeType.includes("ogg")
+            ? "ogg"
+            : "mp4";
           formData.append("audioFile", audioBlob, `voice-message.${extension}`);
 
           setIsUploading(true);
@@ -199,11 +197,17 @@ const ChatBox = ({ name, socket, chatType, roomId, messages = [] }) => {
       } catch (err) {
         console.error("Error starting recording:", err);
         if (err.name === "NotAllowedError") {
-          alert("Microphone access denied. Please allow microphone access in your browser settings.");
+          alert(
+            "Microphone access denied. Please allow microphone access in your browser settings."
+          );
         } else if (err.name === "NotFoundError") {
-          alert("No microphone found. Please connect a microphone and try again.");
+          alert(
+            "No microphone found. Please connect a microphone and try again."
+          );
         } else {
-          alert("Could not access microphone. Please check your browser settings.");
+          alert(
+            "Could not access microphone. Please check your browser settings."
+          );
         }
       }
     }
@@ -259,15 +263,29 @@ const ChatBox = ({ name, socket, chatType, roomId, messages = [] }) => {
             x: "-100%",
             opacity: 0,
           }}
-          transition={SPRING_ANIMATION_TRANSITION()}
+          transition={{
+            ...SPRING_ANIMATION_TRANSITION(),
+            when: "beforeChildren",
+          }}
           className="absolute top-0 left-0 m-2 z-10"
         >
-          <h1 className="text-6xl">{name}</h1>
-          {chatType === "group" && groupMembers.length > 0 && (
-            <p className="text-2xl text-gray-600 mt-1">
-              {groupMembers.length} member{groupMembers.length !== 1 ? "s" : ""}: {groupMembers.join(", ")}
-            </p>
-          )}
+          <h1 className="text-6xl flex items-center gap-2">
+            {name}{" "}
+            <AnimatePresence>
+              {chatType !== "private" && members.length > 0 && (
+                <motion.span
+                  initial={{ scale: 0 }}
+                  animate={{ scale: 1 }}
+                  exit={{ scale: 0 }}
+                  transition={SPRING_ANIMATION_TRANSITION(1.5)}
+                  onClick={() => setIsShowMemberClicked(!isShowMemberClicked)}
+                  className="text-xl inline-block bg-(--red-color-tier2) rounded-full px-4 py-2 text-white! cursor-pointer"
+                >
+                  {members.length}
+                </motion.span>
+              )}
+            </AnimatePresence>
+          </h1>
         </motion.div>
       </AnimatePresence>
       <div
@@ -304,16 +322,20 @@ const ChatBox = ({ name, socket, chatType, roomId, messages = [] }) => {
                 );
               case "voice":
                 return (
-                  <audio 
-                    controls 
-                    style={{ 
-                      width: '300px', 
-                      height: '40px',
-                      display: 'block'
+                  <audio
+                    controls
+                    style={{
+                      width: "300px",
+                      height: "40px",
+                      display: "block",
                     }}
                     preload="metadata"
                     onError={(e) => {
-                      console.error("Audio load error:", content, e.target.error);
+                      console.error(
+                        "Audio load error:",
+                        content,
+                        e.target.error
+                      );
                     }}
                   >
                     <source src={content} type="audio/webm" />
@@ -342,8 +364,16 @@ const ChatBox = ({ name, socket, chatType, roomId, messages = [] }) => {
               <div
                 className={`message ${
                   data.isMe ? "message-right" : "message-left"
-                } ${contentType === "voice" || contentType === "image" ? "!p-2" : ""}`}
-                style={contentType === "voice" ? { wordBreak: 'normal', overflow: 'visible' } : {}}
+                } ${
+                  contentType === "voice" || contentType === "image"
+                    ? "p-2"
+                    : ""
+                }`}
+                style={
+                  contentType === "voice"
+                    ? { wordBreak: "normal", overflow: "visible" }
+                    : {}
+                }
               >
                 {renderContent()}
               </div>
@@ -405,6 +435,48 @@ const ChatBox = ({ name, socket, chatType, roomId, messages = [] }) => {
           />
         </div>
       </motion.div>
+
+      <AnimatePresence>
+        {isShowMemberClicked && (
+          <Overlay
+            onClick={() => setIsShowMemberClicked(!isShowMemberClicked)}
+            key="overlay"
+          >
+            <motion.div
+              initial={{ y: "100%" }}
+              animate={{ y: 0 }}
+              transition={SPRING_ANIMATION_TRANSITION}
+              exit={{ y: "100%" }}
+              className="absolute left-1/2 -translate-x-1/2 bg-white rounded-2xl w-2/3 overflow-hidden"
+            >
+              {[...members]
+                .sort((a, b) => {
+                  if (a.name === me.current) return -1;
+                  if (b.name === me.current) return 1;
+                  return 0;
+                })
+                .map((member, idx) => {
+                  return (
+                    <div
+                      key={idx}
+                      className={`w-full text-2xl py-4 px-8 flex justify-start items-center gap-4 ${
+                        member.name === me.current
+                          ? "bg-(--red-color-tier3)"
+                          : "bg-(--red-color-tier4)"
+                      }`}
+                    >
+                      <img
+                        src={member.avatar}
+                        className="avatar avatar-chatbox"
+                      />
+                      {member.name} {member.name === me.current && "<Me>"}
+                    </div>
+                  );
+                })}
+            </motion.div>
+          </Overlay>
+        )}
+      </AnimatePresence>
     </div>
   );
 };
