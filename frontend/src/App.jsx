@@ -15,13 +15,6 @@ function App() {
 
     newSocket.on("connect", () => {});
 
-    const name = localStorage.getItem("name");
-    const img = localStorage.getItem("img");
-    
-    if(name && img){
-      newSocket.emit("register", { name, avatar: img });
-    }
-
     setSocket(newSocket);
     return () => newSocket.close();
   }, []);
