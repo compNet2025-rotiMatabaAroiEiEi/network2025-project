@@ -38,7 +38,6 @@ io.on("connection", (socket) => {
   socket.on("joinGroup", handlers.joinGroupHandler(io, socket));
   socket.on("getMessageHistory", handlers.getMessageHistoryHandler(socket));
   socket.on("logout", handlers.disconnectHandler(io, socket));
-  socket.on("disconnect", handlers.disconnectHandler(io, socket));
 });
 
 // Serve static files with proper headers
