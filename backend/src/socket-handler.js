@@ -161,21 +161,26 @@ exports.joinGroupHandler = (io, socket) => (data) => {
 
   // Add user to group
   const updatedMembers = [...group.members, username];
-  updateGroup(groupId, { members: updatedMembers });
-
+  const updatedGroup = updateGroup(groupId, { members: updatedMembers });
   console.log(`${username} joined group ${group.name}`);
 
   // Notify the user
+
+  const membersWithAvatars = updatedGroup.members.map(username => {
+      return {
+        name: username,
+        avatar: userAvatars[username] || "/src/asset/avatar_secret.png"
+      };
+  });
   socket.emit("joinGroupSuccess", { groupId, groupName: group.name });
 
   // Broadcast updated group members to all clients
-  io.emit("groupMembers", { groupId, members: updatedMembers });
+  io.emit("groupMembers", { groupId, members: membersWithAvatars });
 
   // Broadcast updated groups list
   const groupsList = getGroups();
   io.emit("groupsList", groupsList);
 };
-
 
 
 // Create new group
