@@ -33,12 +33,25 @@ io.on("connection", (socket) => {
   socket.on("groupMessage", handlers.groupMessageHandler(io, socket));
   socket.on("getUsers", handlers.getUsersHandler(socket));
   socket.on("getGroups", handlers.getGroupsHandler(socket));
+  socket.on("getGroupMembers", handlers.getGroupMembersHandler(socket));
   socket.on("createGroup", handlers.createGroupHandler(io, socket));
+  socket.on("joinGroup", handlers.joinGroupHandler(io, socket));
   socket.on("getMessageHistory", handlers.getMessageHistoryHandler(socket));
   socket.on("disconnect", handlers.disconnectHandler(io, socket));
 });
 
-app.use('/uploads', express.static(path.join(__dirname, '../public/uploads')));
+// Serve static files with proper headers
+app.use('/uploads', express.static(path.join(__dirname, '../public/uploads'), {
+  setHeaders: (res, filePath) => {
+    if (filePath.endsWith('.webm')) {
+      res.setHeader('Content-Type', 'audio/webm');
+    } else if (filePath.endsWith('.ogg')) {
+      res.setHeader('Content-Type', 'audio/ogg');
+    } else if (filePath.endsWith('.mp4')) {
+      res.setHeader('Content-Type', 'audio/mp4');
+    }
+  }
+}));
 
 app.get("/", (req, res) => {
   res.json({ message: "Server is running!", status: "ok" });
