@@ -179,6 +179,12 @@ exports.createGroupHandler = (io, socket) => (data) => {
     .toString(36)
     .substr(2, 9)}`;
 
+    const group = getGroups();
+    if(group.some(group => group.name === groupName)){
+      socket.emit("createGroupError", "this group name is already taken");
+      return;
+    }
+
   console.log("Create group:", groupName, "by", creator);
 
   const newGroup = {
