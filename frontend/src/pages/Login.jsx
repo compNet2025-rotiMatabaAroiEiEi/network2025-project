@@ -26,34 +26,24 @@ const Login = ({ socket }) => {
   const [img, setImg] = useState(santaImage);
   const [prevImg, setPrevImg] = useState(santaImage);
   const [slidingBlock, animate] = useAnimate();
+  const [error, setError] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
 
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    localStorage.setItem("name", name);
-    localStorage.setItem("img", img);
-
-    await Promise.all([
-      animate(
-        [...slidingBlock.current.children],
-        { x: "200%" },
-        ANIMATION_TRANSITION("ease-in-out")
-      ),
-      animate(
-        slidingBlock.current,
-        { scaleX: 2 },
-        SPRING_ANIMATION_TRANSITION(1.5)
-      ),
-    ]);
-
-    navigate("/chat/global");
-
-    const username = localStorage.getItem("name");
-    const avatar = localStorage.getItem("img");
-    if (username && avatar) {
-      socket.emit("register", { name: username, avatar });
+    
+    if (!socket) {
+      setError("Connection error. Please refresh the page.");
+      return;
     }
+
+    setError("");
+    setIsLoading(true);
+
+    // Try to register with the server first
+    socket.emit("register", { name, avatar: img });
   };
 
   useEffect(() => {
@@ -73,7 +63,46 @@ const Login = ({ socket }) => {
     };
 
     loadElement();
-  }, []);
+
+    // Only set up socket listeners if socket exists
+    if (!socket) return;
+
+    // Listen for registration success
+    const handleRegisterSuccess = async (username) => {
+      localStorage.setItem("name", username);
+      localStorage.setItem("img", img);
+
+      await Promise.all([
+        animate(
+          [...slidingBlock.current.children],
+          { x: "200%" },
+          ANIMATION_TRANSITION("ease-in-out")
+        ),
+        animate(
+          slidingBlock.current,
+          { scaleX: 2 },
+          SPRING_ANIMATION_TRANSITION(1.5)
+        ),
+      ]);
+
+      navigate("/chat/global");
+    };
+
+    // Listen for registration error
+    const handleRegisterError = (errorMessage) => {
+      setError(errorMessage);
+      setIsLoading(false);
+    };
+
+    socket.on("registerSuccess", handleRegisterSuccess);
+    socket.on("registerError", handleRegisterError);
+
+    // Cleanup listeners
+    return () => {
+      socket.off("registerSuccess", handleRegisterSuccess);
+      socket.off("registerError", handleRegisterError);
+    };
+  }, [socket, navigate, animate, slidingBlock, img]);
 
   return (
     <div className="grid grid-cols-2 min-h-dvh bg-(--red-color-tier3)">
@@ -127,15 +156,26 @@ const Login = ({ socket }) => {
               value={name}
               autoComplete="off"
               onChange={(e) => setName(e.target.value)}
+              disabled={isLoading}
             />
+            {error && (
+              <motion.div
+                initial={{ opacity: 0, y: -10 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="text-red-600 text-xl bg-white px-4 py-2 rounded-lg shadow-lg"
+              >
+                {error}
+              </motion.div>
+            )}
             <motion.button
               initial={{ scale: 0 }}
               animate={{ scale: name.length > 0 ? 1 : 0 }}
               transition={SPRING_ANIMATION_TRANSITION()}
               type="submit"
-              className="btn btn-main mx-auto mt-3 active:scale-90 active:brightness-90"
+              className="btn btn-main mx-auto mt-3 active:scale-90 active:brightness-90 disabled:opacity-50 disabled:cursor-not-allowed"
+              disabled={isLoading}
             >
-              GO!
+              {isLoading ? "Checking..." : "GO!"}
             </motion.button>
           </form>
         </div>

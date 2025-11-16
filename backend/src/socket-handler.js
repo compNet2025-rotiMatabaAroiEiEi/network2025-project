@@ -115,6 +115,62 @@ exports.getGroupsHandler = (socket) => () => {
   socket.emit("groupsList", groupsList);
 };
 
+// Get group members
+exports.getGroupMembersHandler = (socket) => (data) => {
+  const { groupId } = data;
+  const groups = getGroups();
+  const group = groups.find((g) => g.id === groupId);
+
+  if (group) {
+    console.log("Send group members for", groupId, ":", group.members);
+    socket.emit("groupMembers", { groupId, members: group.members });
+  }
+};
+
+// Join group
+exports.joinGroupHandler = (io, socket) => (data) => {
+  const { groupId } = data;
+  const username = invertUsers[socket.id];
+  const { updateGroup } = require("./db");
+
+  if (!username) {
+    socket.emit("joinGroupError", "User not registered");
+    return;
+  }
+
+  const groups = getGroups();
+  const group = groups.find((g) => g.id === groupId);
+
+  if (!group) {
+    socket.emit("joinGroupError", "Group not found");
+    return;
+  }
+
+  // Check if user is already a member
+  if (group.members.includes(username)) {
+    socket.emit("joinGroupError", "Already a member of this group");
+    return;
+  }
+
+  // Add user to group
+  const updatedMembers = [...group.members, username];
+  updateGroup(groupId, { members: updatedMembers });
+
+  console.log(`${username} joined group ${group.name}`);
+
+  // Notify the user
+  socket.emit("joinGroupSuccess", { groupId, groupName: group.name });
+
+  // Broadcast updated group members to all clients
+  io.emit("groupMembers", { groupId, members: updatedMembers });
+
+  // Broadcast updated groups list
+  const groupsList = getGroups();
+  io.emit("groupsList", groupsList);
+};
+
+
+
 // Create new group
 exports.createGroupHandler = (io, socket) => (data) => {
   const { groupName } = data;
@@ -189,7 +245,6 @@ exports.groupMessageHandler = (io, socket) => async (data) => {
   try {
     addMessage({
       username: messageData.username,
-      // message: messageData.message,
       contentType: messageData.contentType,
       content: messageData.content,
       avatar: messageData.avatar,

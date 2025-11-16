@@ -8,6 +8,7 @@ import { SPRING_ANIMATION_TRANSITION } from "../style/animation";
 
 const ChatBox = ({ name, socket, chatType, roomId, messages = [] }) => {
   const [message, setMessage] = useState("");
+  const [groupMembers, setGroupMembers] = useState([]);
   const chatBoxSpaceRef = useRef(null);
 
   const backendHost =
@@ -36,6 +37,24 @@ const ChatBox = ({ name, socket, chatType, roomId, messages = [] }) => {
       });
     }
   }, [messages]);
+
+  // Fetch group members when chatType is group
+  useEffect(() => {
+    if (!socket || chatType !== "group") return;
+
+    const handleGroupMembers = ({ groupId, members }) => {
+      if (groupId === roomId) {
+        setGroupMembers(members);
+      }
+    };
+
+    socket.on("groupMembers", handleGroupMembers);
+    socket.emit("getGroupMembers", { groupId: roomId });
+
+    return () => {
+      socket.off("groupMembers", handleGroupMembers);
+    };
+  }, [socket, chatType, roomId]);
 
   const sendMessage = () => {
     if (!message.trim() || !socket) return;
@@ -185,7 +204,7 @@ const ChatBox = ({ name, socket, chatType, roomId, messages = [] }) => {
   return (
     <div className="relative flex-1 flex flex-col">
       <AnimatePresence>
-        <motion.h1
+        <motion.div
           key={name}
           initial={{
             x: "-100%",
@@ -200,10 +219,15 @@ const ChatBox = ({ name, socket, chatType, roomId, messages = [] }) => {
             opacity: 0,
           }}
           transition={SPRING_ANIMATION_TRANSITION()}
-          className="absolute top-0 left-0 m-2 text-6xl z-10"
+          className="absolute top-0 left-0 m-2 z-10"
         >
-          {name}
-        </motion.h1>
+          <h1 className="text-6xl">{name}</h1>
+          {chatType === "group" && groupMembers.length > 0 && (
+            <p className="text-2xl text-gray-600 mt-1">
+              {groupMembers.length} member{groupMembers.length !== 1 ? "s" : ""}: {groupMembers.join(", ")}
+            </p>
+          )}
+        </motion.div>
       </AnimatePresence>
       <div
         ref={chatBoxSpaceRef}
