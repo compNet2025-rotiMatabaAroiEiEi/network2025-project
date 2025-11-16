@@ -163,7 +163,7 @@ exports.joinGroupHandler = (io, socket) => (data) => {
   updateGroup(groupId, { members: updatedMembers });
 
   const Updatedgroups = getGroups();
-  const Updatedgroup = groups.find((g) => g.id === groupId);
+  const Updatedgroup = Updatedgroups.find((g) => g.id === groupId);
   console.log(`${username} joined group ${group.name}`);
 
   // Notify the user
