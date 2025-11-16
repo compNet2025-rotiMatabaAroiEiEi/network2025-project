@@ -122,8 +122,15 @@ exports.getGroupMembersHandler = (socket) => (data) => {
   const group = groups.find((g) => g.id === groupId);
 
   if (group) {
+
+    const membersWithAvatars = group.members.map(username => {
+      return {
+        name: username,
+        avatar: userAvatars[username] || "/src/asset/avatar_secret.png"
+      };
+    });
     console.log("Send group members for", groupId, ":", group.members);
-    socket.emit("groupMembers", { groupId, members: group.members });
+    socket.emit("groupMembers", { groupId, members: membersWithAvatars });
   }
 };
 
