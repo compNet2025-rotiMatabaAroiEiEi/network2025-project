@@ -3,7 +3,7 @@ import IconInsertFile from "../asset/icon_insert_file.svg?react";
 import IconSend from "../asset/icon_send.svg?react";
 import secretAvatar from "../asset/avatar_secret.png";
 import { useEffect, useRef, useState } from "react";
-import { motion, AnimatePresence } from "motion/react";
+import { motion, AnimatePresence, stagger } from "motion/react";
 import { SPRING_ANIMATION_TRANSITION } from "../style/animation";
 import Overlay from "./Overlay";
 
@@ -263,19 +263,28 @@ const ChatBox = ({
             x: "-100%",
             opacity: 0,
           }}
-          transition={SPRING_ANIMATION_TRANSITION()}
+          transition={{
+            ...SPRING_ANIMATION_TRANSITION(),
+            when: "beforeChildren",
+          }}
           className="absolute top-0 left-0 m-2 z-10"
         >
           <h1 className="text-6xl flex items-center gap-2">
             {name}{" "}
-            {chatType !== "private" && (
-              <span
-                onClick={() => setIsShowMemberClicked(!isShowMemberClicked)}
-                className="text-xl inline-block bg-(--red-color-tier2) rounded-full px-4 py-2 text-white! cursor-pointer"
-              >
-                {members.length}
-              </span>
-            )}
+            <AnimatePresence>
+              {chatType !== "private" && members.length > 0 && (
+                <motion.span
+                  initial={{ scale: 0 }}
+                  animate={{ scale: 1 }}
+                  exit={{ scale: 0 }}
+                  transition={SPRING_ANIMATION_TRANSITION(1.5)}
+                  onClick={() => setIsShowMemberClicked(!isShowMemberClicked)}
+                  className="text-xl inline-block bg-(--red-color-tier2) rounded-full px-4 py-2 text-white! cursor-pointer"
+                >
+                  {members.length}
+                </motion.span>
+              )}
+            </AnimatePresence>
           </h1>
         </motion.div>
       </AnimatePresence>
@@ -433,7 +442,13 @@ const ChatBox = ({
             onClick={() => setIsShowMemberClicked(!isShowMemberClicked)}
             key="overlay"
           >
-            <div className="absolute left-1/2 -translate-x-1/2 bg-white rounded-2xl w-2/3">
+            <motion.div
+              initial={{ y: "100%" }}
+              animate={{ y: 0 }}
+              transition={SPRING_ANIMATION_TRANSITION}
+              exit={{ y: "100%" }}
+              className="absolute left-1/2 -translate-x-1/2 bg-white rounded-2xl w-2/3 overflow-hidden"
+            >
               {[...members]
                 .sort((a, b) => {
                   if (a.name === me.current) return -1;
@@ -444,7 +459,11 @@ const ChatBox = ({
                   return (
                     <div
                       key={idx}
-                      className="w-full text-2xl py-4 px-8 flex justify-start items-center gap-4"
+                      className={`w-full text-2xl py-4 px-8 flex justify-start items-center gap-4 ${
+                        member.name === me.current
+                          ? "bg-(--red-color-tier3)"
+                          : "bg-(--red-color-tier4)"
+                      }`}
                     >
                       <img
                         src={member.avatar}
@@ -454,7 +473,7 @@ const ChatBox = ({
                     </div>
                   );
                 })}
-            </div>
+            </motion.div>
           </Overlay>
         )}
       </AnimatePresence>

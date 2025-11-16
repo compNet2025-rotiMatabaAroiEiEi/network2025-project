@@ -112,7 +112,7 @@ const Chat = ({ socket }) => {
 
   const handleOut = async () => {
     if (socket) {
-      socket.disconnect();
+      socket.emit("logout")
     }
 
     await Promise.all([

@@ -2,16 +2,20 @@ import { useEffect, useState } from "react";
 import ChatLayout from "./layout/ChatLayout";
 import Chat from "./pages/Chat";
 import Login from "./pages/Login";
-import { Navigate, Route, Routes } from "react-router-dom";
+import { Navigate, Route, Routes, useNavigate } from "react-router-dom";
 import io from "socket.io-client";
 
 function App() {
   const [socket, setSocket] = useState(null);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const backendHost =
       import.meta.env.VITE_BACKEND_HOST || window.location.hostname;
     const newSocket = io(`http://${backendHost}:5000`);
+
+    localStorage.clear()
+    navigate("/")
 
     newSocket.on("connect", () => {});
 
