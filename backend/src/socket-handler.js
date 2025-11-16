@@ -125,7 +125,7 @@ exports.getGroupMembersHandler = (socket) => (data) => {
 
     const membersWithAvatars = group.members.map(username => {
       return {
-        username: username,
+        name: username,
         avatar: userAvatars[username] || "/src/asset/avatar_secret.png"
       };
     });

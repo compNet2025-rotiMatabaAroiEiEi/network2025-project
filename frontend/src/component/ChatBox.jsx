@@ -3,7 +3,7 @@ import IconInsertFile from "../asset/icon_insert_file.svg?react";
 import IconSend from "../asset/icon_send.svg?react";
 import secretAvatar from "../asset/avatar_secret.png";
 import { useEffect, useRef, useState } from "react";
-import { motion, AnimatePresence, stagger } from "motion/react";
+import { motion, AnimatePresence } from "motion/react";
 import { SPRING_ANIMATION_TRANSITION } from "../style/animation";
 import Overlay from "./Overlay";
 

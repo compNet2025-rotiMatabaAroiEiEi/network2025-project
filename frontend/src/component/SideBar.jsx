@@ -35,6 +35,9 @@ const SideBar = ({ chatType, socket, setMembers, isGroupMember, ...motionProps }
     socket.emit("createGroup", {
       groupName: newGroupName.trim(),
     });
+    socket.on("createGroupError", (msg) =>{
+      alert(msg);
+    })
     setNewGroupName("");
   };
 

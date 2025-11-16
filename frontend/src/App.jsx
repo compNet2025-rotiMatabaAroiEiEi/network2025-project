@@ -14,11 +14,14 @@ function App() {
       import.meta.env.VITE_BACKEND_HOST || window.location.hostname;
     const newSocket = io(`http://${backendHost}:5000`);
 
-    localStorage.clear()
-    navigate("/")
-
     newSocket.on("connect", () => {});
-
+    if (localStorage.getItem("name") && localStorage.getItem("img")) {
+      newSocket.emit("register", {
+        name: localStorage.getItem("name"),
+        avatar: localStorage.getItem("img"),
+      });
+      navigate("/chat/global");
+    }
     setSocket(newSocket);
     return () => newSocket.close();
   }, []);
@@ -26,10 +29,7 @@ function App() {
   return (
     <>
       <Routes>
-        <Route
-          path="/"
-          element={<Login socket={socket} />}
-        />
+        <Route path="/" element={<Login socket={socket} />} />
 
         <Route path="/chat" element={<Chat socket={socket} />}>
           <Route
