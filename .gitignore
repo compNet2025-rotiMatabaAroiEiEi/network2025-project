@@ -27,5 +27,5 @@ dist-ssr
 */data/*
 
 # Data
-*backend/public/uploads/audio/*
-*backend/public/uploads/images/*
+backend/public/uploads/audio/*
+backend/public/uploads/images/*
