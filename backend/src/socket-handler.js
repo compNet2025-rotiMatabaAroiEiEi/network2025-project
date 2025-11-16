@@ -122,8 +122,15 @@ exports.getGroupMembersHandler = (socket) => (data) => {
   const group = groups.find((g) => g.id === groupId);
 
   if (group) {
+
+    const membersWithAvatars = group.members.map(username => {
+      return {
+        username: username,
+        avatar: userAvatars[username] || "/src/asset/avatar_secret.png"
+      };
+    });
     console.log("Send group members for", groupId, ":", group.members);
-    socket.emit("groupMembers", { groupId, members: group.members });
+    socket.emit("groupMembers", { groupId, members: membersWithAvatars });
   }
 };
 
@@ -153,16 +160,24 @@ exports.joinGroupHandler = (io, socket) => (data) => {
   }
 
   // Add user to group
-  const updatedMembers = [...group.members, username];
   updateGroup(groupId, { members: updatedMembers });
 
+  const Updatedgroups = getGroups();
+  const Updatedgroup = groups.find((g) => g.id === groupId);
   console.log(`${username} joined group ${group.name}`);
 
   // Notify the user
+
+  const membersWithAvatars = Updatedgroup.members.map(username => {
+      return {
+        username: username,
+        avatar: userAvatars[username] || "/src/asset/avatar_secret.png"
+      };
+  });
   socket.emit("joinGroupSuccess", { groupId, groupName: group.name });
 
   // Broadcast updated group members to all clients
-  io.emit("groupMembers", { groupId, members: updatedMembers });
+  io.emit("groupMembers", { groupId, members: membersWithAvatars });
 
   // Broadcast updated groups list
   const groupsList = getGroups();
