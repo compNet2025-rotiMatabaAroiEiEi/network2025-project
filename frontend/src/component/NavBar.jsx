@@ -2,8 +2,9 @@ import IconChatGlobal from "../asset/icon_chat_global.svg?react";
 import IconChatIndiv from "../asset/icon_chat_private.svg?react";
 import IconChatGroup from "../asset/icon_chat_group.svg?react";
 import { useNavigate, useLocation } from "react-router-dom";
+import { useOutletContext } from "react-router";
 import { motion } from "motion/react";
-import { ANIMATION } from "../style/animation";
+import { SPRING_ANIMATION_TRANSITION } from "../style/animation";
 
 const NavBar = ({ selected }) => {
   const iconList = [
@@ -13,6 +14,7 @@ const NavBar = ({ selected }) => {
   ];
   const location = useLocation();
   const navigate = useNavigate();
+  const { handleOut } = useOutletContext();
 
   const handleLink = (path) => {
     const desUrl = `/${location.pathname.split("/")[1]}/${path}`;
@@ -20,11 +22,6 @@ const NavBar = ({ selected }) => {
       return;
     }
     navigate(desUrl);
-  };
-
-  const handleExit = () => {
-    localStorage.clear();
-    navigate("/");
   };
 
   return (
@@ -42,7 +39,7 @@ const NavBar = ({ selected }) => {
               {icon.path === selected && (
                 <motion.div
                   layoutId="navbar-indicator"
-                  transition={ANIMATION}
+                  transition={SPRING_ANIMATION_TRANSITION()}
                   className="indicator-container bg-(--red-color-tier2)"
                 />
               )}
@@ -50,7 +47,7 @@ const NavBar = ({ selected }) => {
           ))}
         </ul>
         <button
-          onClick={() => handleExit()}
+          onClick={handleOut}
           className="btn btn-nav mr-5 active:scale-90 active:brightness-90"
         >
           BYE

@@ -1,42 +1,15 @@
-const ANIMATION = {
-  duration: 0.4,
-  type: "spring",
+const SPRING_ANIMATION_TRANSITION = (multipler = 1) => {
+  return {
+    duration: 0.4 * multipler,
+    type: "spring",
+  };
 };
 
-const slideLeftRight = {
-  slideLeft: (time) => ({
-    x: -100,
-    opacity: 0,
-    transition: {
-      duration: time,
-      type: "spring",
-    },
-  }),
-  slideRight: (time) => ({
-    x: 0,
-    opacity: 1,
-    transition: {
-      duration: time,
-      type: "spring",
-    },
-  }),
+const ANIMATION_TRANSITION = (type, multipler = 1, ) => {
+  return {
+    duration: 0.4 * multipler,
+    type: type,
+  };
 };
 
-const slideTopBottom = {
-  slideTop: (time) => ({
-    y: -200,
-    transition: {
-      duration: time,
-      type: "spring",
-    },
-  }),
-  slideBottom: (time) => ({
-    y: 0,
-    transition: {
-      duration: time,
-      type: "spring",
-    },
-  }),
-};
-
-export { slideLeftRight, slideTopBottom, ANIMATION };
+export { SPRING_ANIMATION_TRANSITION, ANIMATION_TRANSITION };

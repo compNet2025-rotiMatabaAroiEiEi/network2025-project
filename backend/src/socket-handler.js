@@ -1,9 +1,4 @@
-const { 
-  addMessage,
-  getMessages,  
-  addGroup, 
-  getGroups 
-} = require("./db");
+const { addMessage, getMessages, addGroup, getGroups } = require("./db");
 
 const users = {}; // { username: socket.id }
 const invertUsers = {}; // { socket.id : username }
@@ -11,48 +6,49 @@ const userAvatars = {}; // { username: avatar }
 
 // Register username
 exports.registerHandler = (io, socket) => (data) => {
-  const name = typeof data === 'string' ? data : data.name;
-  const avatar = typeof data === 'object' ? data.avatar : null;
-  
+  const name = typeof data === "string" ? data : data.name;
+  const avatar = typeof data === "object" ? data.avatar : null;
+
   console.log("register user:", name, ", id:", socket.id);
-  
+
   // Check if username is already taken (currently online)
   if (users[name]) {
-    socket.emit("registerError", "Username is currently in use. Please try again later or choose a different username.");
+    socket.emit(
+      "registerError",
+      "Username is currently in use. Please try again later or choose a different username."
+    );
     return;
   }
-  
+
   // Add to online users
   users[name] = socket.id;
   invertUsers[socket.id] = name;
   if (avatar) {
     userAvatars[name] = avatar;
   }
-  
+
   socket.emit("registerSuccess", name);
   console.log("Current users:", users);
-  
+
   // Broadcast updated user list with avatars to all clients
-  const usersList = Object.keys(users).map(username => ({
+  const usersList = Object.keys(users).map((username) => ({
     name: username,
-    avatar: userAvatars[username] || null
+    avatar: userAvatars[username] || null,
   }));
   io.emit("usersList", usersList);
 };
 
 exports.broadcastHandler = (io, socket) => async (data) => {
-  console.log("Broadcast message:", data, "from", socket.id);
   const messageData = {
     username: invertUsers[socket.id],
-    // message: data.message,
-    timestamp: data.timestamp || new Date().toISOString(),
     userId: socket.id,
     avatar: data.avatar,
-    messageType: 'global',
+    messageType: "global",
     contentType: data.contentType,
-    content: data.content
+    content: data.content,
   };
-  
+  console.log("this is me", messageData)
+
   // Save to JSON database
   try {
     addMessage({
@@ -60,13 +56,12 @@ exports.broadcastHandler = (io, socket) => async (data) => {
       contentType: messageData.contentType,
       content: messageData.content,
       avatar: messageData.avatar,
-      messageType: 'global',
-      timestamp: messageData.timestamp
+      messageType: "global",
     });
   } catch (error) {
     console.error("Error saving message:", error);
   }
-  
+
   io.emit("message", messageData);
 };
 
@@ -77,16 +72,14 @@ exports.privateMessageHandler = (io, socket) => async (data) => {
     console.log("Send message:", data.message, "from", socket.id, "to", toId);
     const messageData = {
       username: invertUsers[socket.id],
-      // message: data.message,
-      timestamp: data.timestamp || new Date().toISOString(),
       userId: socket.id,
       avatar: data.avatar,
-      messageType: 'private',
+      messageType: "private",
       recipientId: data.recipientId,
       contentType: data.contentType,
-      content: data.content
+      content: data.content,
     };
-    
+
     // Save to JSON database
     try {
       addMessage({
@@ -94,14 +87,13 @@ exports.privateMessageHandler = (io, socket) => async (data) => {
         contentType: messageData.contentType,
         content: messageData.content,
         avatar: messageData.avatar,
-        messageType: 'private',
+        messageType: "private",
         recipientId: messageData.recipientId,
-        timestamp: messageData.timestamp
       });
     } catch (error) {
       console.error("Error saving message:", error);
     }
-    
+
     io.to(toId).emit("message", messageData);
     socket.emit("message", messageData);
   }
@@ -109,9 +101,9 @@ exports.privateMessageHandler = (io, socket) => async (data) => {
 
 exports.getUsersHandler = (socket) => () => {
   console.log("Send Users list:", Object.keys(users), "to", socket.id);
-  const usersList = Object.keys(users).map(username => ({
+  const usersList = Object.keys(users).map((username) => ({
     name: username,
-    avatar: userAvatars[username] || null
+    avatar: userAvatars[username] || null,
   }));
   socket.emit("usersList", usersList);
 };
@@ -125,27 +117,28 @@ exports.getGroupsHandler = (socket) => () => {
 
 // Create new group
 exports.createGroupHandler = (io, socket) => (data) => {
-  const { groupName, members } = data;
+  const { groupName } = data;
   const creator = invertUsers[socket.id];
-  const groupId = `group_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
-  
+  const groupId = `group_${Date.now()}_${Math.random()
+    .toString(36)
+    .substr(2, 9)}`;
+
   console.log("Create group:", groupName, "by", creator);
-  
+
   const newGroup = {
     id: groupId,
     name: groupName,
-    members: [creator, ...members],
+    members: [creator],
     creator: creator,
-    createdAt: new Date().toISOString()
+    createdAt: new Date().toISOString(),
   };
-  
+
   // Save to database
   addGroup(newGroup);
-  
+
   // Broadcast updated groups list to all clients
   const groupsList = getGroups();
   io.emit("groupsList", groupsList);
-  socket.emit("groupCreated", { groupId, groupName });
 };
 
 // Get message history from JSON database
@@ -153,27 +146,26 @@ exports.getMessageHistoryHandler = (socket) => (data) => {
   try {
     const { messageType, recipientId, groupId } = data;
     const username = invertUsers[socket.id];
-    
-    let messages = getMessages(msg => {
-      if (messageType === 'global') {
-        return msg.messageType === 'global';
-      } else if (messageType === 'private') {
+
+    let messages = getMessages((msg) => {
+      if (messageType === "global") {
+        return msg.messageType === "global";
+      } else if (messageType === "private") {
         // Get messages between current user and recipient
-        return msg.messageType === 'private' && (
-          (msg.username === username && msg.recipientId === recipientId) ||
-          (msg.username === recipientId && msg.recipientId === username)
+        return (
+          msg.messageType === "private" &&
+          ((msg.username === username && msg.recipientId === recipientId) ||
+            (msg.username === recipientId && msg.recipientId === username))
         );
-      } else if (messageType === 'group') {
-        return msg.messageType === 'group' && msg.groupId === groupId;
+      } else if (messageType === "group") {
+        return msg.messageType === "group" && msg.groupId === groupId;
       }
       return false;
     });
-    
-    // Sort by timestamp and limit to last 100 messages
-    messages = messages
-      .sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp))
-      .slice(-100);
-    
+
+    // Limit to last 100 messages
+    messages = messages.slice(-100);
+
     socket.emit("messageHistory", { chatKey: data.chatKey, messages });
   } catch (error) {
     console.error("Error fetching message history:", error);
@@ -185,16 +177,14 @@ exports.groupMessageHandler = (io, socket) => async (data) => {
   console.log("Group message:", data, "from", socket.id);
   const messageData = {
     username: invertUsers[socket.id],
-    // message: data.message,
-    timestamp: data.timestamp || new Date().toISOString(),
     userId: socket.id,
     groupId: data.groupId,
     avatar: data.avatar,
-    messageType: 'group',
+    messageType: "group",
     contentType: data.contentType,
     content: data.content,
   };
-  
+
   // Save to JSON database
   try {
     addMessage({
@@ -203,14 +193,13 @@ exports.groupMessageHandler = (io, socket) => async (data) => {
       contentType: messageData.contentType,
       content: messageData.content,
       avatar: messageData.avatar,
-      messageType: 'group',
+      messageType: "group",
       groupId: messageData.groupId,
-      timestamp: messageData.timestamp
     });
   } catch (error) {
     console.error("Error saving message:", error);
   }
-  
+
   // Emit to all users in the group (for now, broadcast to all)
   io.emit("message", messageData);
 };
@@ -225,9 +214,9 @@ exports.disconnectHandler = (io, socket) => () => {
     delete userAvatars[username];
     console.log(`Removed ${username}`);
     // Broadcast updated user list with avatars to all clients
-    const usersList = Object.keys(users).map(username => ({
+    const usersList = Object.keys(users).map((username) => ({
       name: username,
-      avatar: userAvatars[username] || null
+      avatar: userAvatars[username] || null,
     }));
     io.emit("usersList", usersList);
   }

@@ -23,3 +23,9 @@ dist-ssr
 *.sln
 *.sw?
 */config/*
+*.env
+*/data/*
+
+# Data
+*backend/public/uploads/audio/*
+*backend/public/uploads/images/*

@@ -6,9 +6,6 @@ services:
     ports:
       - "5000:5000"
     env_file: ./backend/config/config.env
-    depends_on:
-      mongo:
-        condition: service_healthy
     volumes:
       - ./backend:/usr/app/backend
       - /usr/app/backend/node_modules
@@ -24,32 +21,3 @@ services:
     volumes:
       - ./frontend:/usr/app/frontend
       - /usr/app/frontend/node_modules
-
-  mongo:
-    image: mongo
-    restart: always
-    environment:
-      MONGO_INITDB_ROOT_USERNAME: root
-      MONGO_INITDB_ROOT_PASSWORD: example
-      MONGO_INITDB_DATABASE: mydb
-    volumes:
-      - mongo_data:/data/db
-    healthcheck:
-      test:
-        [
-          "CMD",
-          "mongosh",
-          "--username",
-          "root",
-          "--password",
-          "example",
-          "--eval",
-          "db.adminCommand('ping')",
-        ]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-      start_period: 20s
-
-volumes:
-  mongo_data:

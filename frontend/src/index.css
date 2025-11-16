@@ -6,6 +6,10 @@
   color: var(--red-color-tier1);
 }
 
+body {
+  overflow: hidden;
+}
+
 :root {
   --gray-color: #F2F2F7;
   --red-color-tier1: #611D1D;
