@@ -3,7 +3,8 @@ import ChatBox from "../component/ChatBox";
 import NavBar from "../component/NavBar";
 import { useOutletContext } from "react-router";
 import { useEffect } from "react";
-import { AnimatePresence, LayoutGroup } from "motion/react";
+import { AnimatePresence } from "motion/react";
+import { SPRING_ANIMATION_TRANSITION } from "../style/animation";
 
 const ChatLayout = ({ chatType, socket }) => {
   const { privateChatName, groupChatName, chatHistory, loadChatHistory } =
@@ -48,34 +49,33 @@ const ChatLayout = ({ chatType, socket }) => {
     <div className="w-full h-dvh flex flex-col">
       <NavBar selected={chatType} />
       <div className="flex-1 flex overflow-hidden">
-        <>
-          <AnimatePresence mode="popLayout">
-            {chatType !== "global" && (
-              <SideBar
-                key="sidebar"
-                initial={{ scaleX: 0 }}
-                animate={{ scaleX: 1 }}
-                exit={{ scaleX: 0 }}
-                chatType={chatType}
-                socket={socket}
-              />
-            )}
-          </AnimatePresence>
-          {chatType === "global" || values[chatType] ? (
-            <ChatBox
-              key={currentChatKey}
-              name={values[chatType] || "global"}
-              socket={socket}
+        <AnimatePresence mode="popLayout">
+          {chatType !== "global" && (
+            <SideBar
+              key="sidebar"
+              initial={{ scaleX: 0 }}
+              animate={{ scaleX: 1 }}
+              exit={{ scaleX: 0 }}
+              transition={SPRING_ANIMATION_TRANSITION()}
               chatType={chatType}
-              roomId={values[chatType] || "global"}
-              messages={currentMessages}
+              socket={socket}
             />
-          ) : (
-            <div className="flex-1 flex items-center justify-center text-4xl">
-              {getDisplayText()}
-            </div>
           )}
-        </>
+        </AnimatePresence>
+        {chatType === "global" || values[chatType] ? (
+          <ChatBox
+            key={currentChatKey}
+            name={values[chatType] || "global"}
+            socket={socket}
+            chatType={chatType}
+            roomId={values[chatType] || "global"}
+            messages={currentMessages}
+          />
+        ) : (
+          <div className="flex-1 flex items-center justify-center text-4xl">
+            {getDisplayText()}
+          </div>
+        )}
       </div>
     </div>
   );

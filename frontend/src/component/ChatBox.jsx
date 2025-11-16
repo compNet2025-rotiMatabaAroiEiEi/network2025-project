@@ -247,7 +247,11 @@ const ChatBox = ({ name, socket, chatType, roomId, messages = [] }) => {
           };
 
           return (
-            <div
+            <motion.div
+              layout
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={SPRING_ANIMATION_TRANSITION()}
               key={index}
               className={`px-2 flex flex-col  ${
                 data.isMe ? "items-end" : "items-start"
@@ -261,11 +265,15 @@ const ChatBox = ({ name, socket, chatType, roomId, messages = [] }) => {
               >
                 {renderContent()}
               </div>
-            </div>
+            </motion.div>
           );
         })}
       </div>
-      <div className="w-full p-4 bg-(--green-color)">
+      <motion.div
+        layoutId="chat-box"
+        transition={SPRING_ANIMATION_TRANSITION()}
+        className="w-full p-4 bg-(--green-color)"
+      >
         <textarea
           value={message}
           onChange={(e) => setMessage(e.target.value)}
@@ -314,7 +322,7 @@ const ChatBox = ({ name, socket, chatType, roomId, messages = [] }) => {
             className="icon icon-chatbox icon-chatbox-send"
           />
         </div>
-      </div>
+      </motion.div>
     </div>
   );
 };

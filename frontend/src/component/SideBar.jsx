@@ -147,7 +147,7 @@ const SideBar = ({ chatType, socket, ...motionProps }) => {
   return (
     <motion.div
       ref={sideBarContainerRef}
-      className="bg-(--red-color-tier4) origin-left w-[440px] text-4xl overflow-y-auto scrollbar-none z-20 relative"
+      className="bg-(--red-color-tier4) w-[440px] text-4xl overflow-y-auto scrollbar-none z-20 relative origin-left"
       {...motionProps}
     >
       {displayAddGroup()}
